@@ -1,0 +1,15 @@
+linters:
+  InlineStyles:
+    enabled: false
+
+  InstanceVariables:
+    enabled: false
+
+  LineLength:
+    max: 1600
+
+  UnnecessaryStringOutput:
+    enabled: false
+
+  ViewLength:
+    max: 10000

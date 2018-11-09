@@ -1,0 +1,28 @@
+.row
+  .col-md-12
+    %h2 Words
+    %table.table
+      - data.word_stats.each do |stat|
+        %tr
+          %td= stat[:label]
+          %td.text-right
+            %strong= format_number stat[:value]
+
+.row
+  .col-md-6
+    %h2 Projects
+    %table.table
+      - data.projects_stats.each do |stat|
+        %tr
+          %td= stat[:label]
+          %td.text-right
+            %strong= format_number stat[:value]
+
+  .col-md-6
+    %h2 Tasks
+    %table.table
+      - data.tasks_stats.each do |stat|
+        %tr
+          %td= stat[:label]
+          %td.text-right
+            %strong= format_number stat[:value]

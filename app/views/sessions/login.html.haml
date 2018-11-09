@@ -1,0 +1,18 @@
+.row
+  .col-md-6
+    %h2
+      Please log in
+
+    .Login
+      .panel
+        .panel-body
+          = form_tag login_path, id: 'login-form' do
+            .form-group
+              %label.control-label.required{ for: 'username' }= 'Username'
+              = text_field_tag :username, nil, placeholder: 'Please enter your username here', class: 'form-control'
+
+            .form-group
+              %label.control-label.required{ for: 'password' } Password
+              = password_field_tag :password, nil, placeholder: 'Please enter your password here...', class: 'form-control'
+
+            = submit_tag 'Log in', class: 'button btn btn-primary pull-right'

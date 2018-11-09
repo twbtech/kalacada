@@ -1,0 +1,82 @@
+AllCops:
+  Exclude:
+    - bin/*
+    - config/deploy.rb
+    - db/schema.rb
+    - vendor/**/*
+
+Bundler/OrderedGems:
+  Enabled: false
+
+Layout/CaseIndentation:
+  IndentOneStep: true
+
+Layout/ExtraSpacing:
+  Enabled: false
+
+Metrics/AbcSize:
+  Enabled: false
+
+Metrics/BlockLength:
+  Max: 1000
+
+Metrics/ClassLength:
+  Max: 5000
+
+Metrics/LineLength:
+  Max: 1600
+
+Metrics/MethodLength:
+  Max: 200
+
+Metrics/ModuleLength:
+  Max: 5000
+
+Metrics/CyclomaticComplexity:
+  Enabled: false
+
+Metrics/PerceivedComplexity:
+  Enabled: false
+
+Naming/VariableNumber:
+  EnforcedStyle: snake_case
+
+Rails:
+  Enabled: true
+
+Rails/OutputSafety:
+  Enabled: false
+
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Style/AsciiComments:
+  Enabled: false
+
+Style/Documentation:
+  Enabled: false
+
+Style/ExpandPathArguments:
+  Exclude:
+    - spec/spec_helper.rb
+
+Style/FrozenStringLiteralComment:
+  EnforcedStyle: never
+
+Style/GuardClause:
+  Enabled: false
+
+Style/NumericPredicate:
+  EnforcedStyle: comparison
+
+Style/RescueModifier:
+  Enabled: false
+
+Style/RescueStandardError:
+  Enabled: false
+
+Style/SymbolArray:
+  Enabled: false
+
+Style/TernaryParentheses:
+  EnforcedStyle: require_parentheses_when_complex

@@ -1,0 +1,28 @@
+%table.table.table-striped
+  %thead
+    %tr
+      %th Title
+      %th Partner
+      %th Source Language
+      %th Target Language
+      %th Created
+      %th Deadline
+      %th.text-right Word Count
+      %th Status
+  %tbody
+    - if data.projects.blank?
+      %tr
+        %td.text-center{ colspan: 8 } No Results
+
+    - data.projects.each do |project|
+      %tr
+        %td= link_to project.title, project.url
+        %td= project.partner.name
+        %td= project.source_language.try(:name)
+        %td= project.target_language.try(:name)
+        %td= lt project.created_at, format: :date_hours_minutes
+        %td= lt project.deadline, format: :date_hours_minutes
+        %td.text-right= format_number project.word_count
+        %td= t("project.status.#{project.status}")
+
+= paging(data.current_page, data.count_pages)

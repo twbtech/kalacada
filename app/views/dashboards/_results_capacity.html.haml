@@ -1,0 +1,7 @@
+%h2 Capacity
+%table.table
+  - data.capacity_stats.each do |stat|
+    %tr
+      %td= stat[:label]
+      %td.text-right
+        %strong= format_number stat[:value]

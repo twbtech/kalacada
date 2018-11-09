@@ -1,0 +1,2 @@
+TEST_USERNAME = 'test_user'.freeze
+TEST_PASSWORD = 'test_password'.freeze
