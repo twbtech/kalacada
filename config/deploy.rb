@@ -1,5 +1,5 @@
 set :application, 'kato_analytics'
-set :repository, 'git@github.com:anikolskiy/kato_analytics'
+set :repository, 'https://github.com/twbtech/kalacada'
 
 set :branch, 'master'
 set :scm, :git
