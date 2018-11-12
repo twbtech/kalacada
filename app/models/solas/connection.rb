@@ -1,5 +1,14 @@
 module Solas
   class Connection
+    def self.instance
+      @instance ||= new
+    end
+
+    def self.close
+      @instance&.close
+      @instance = nil
+    end
+
     def initialize
       @connection = Mysql2::Client.new solas_config[:database]
     end

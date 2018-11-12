@@ -27,7 +27,7 @@ module Solas
     end
 
     def self.inactive_count(source_language, target_language)
-      query do |connection|
+      query do
         conditions = [
           ("language_1_id = #{source_language}" if source_language.present?),
           ("language_2_id = #{target_language}" if target_language.present?)
@@ -62,7 +62,7 @@ module Solas
               QUERY
             end
 
-        connection.query(q).first['count']
+        0 # connection.query(q).first['count']
       end
     end
   end

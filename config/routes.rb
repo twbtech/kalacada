@@ -3,6 +3,8 @@ Rails.application.routes.draw do
 
   resources :dashboards, only: [:index] do
     collection do
+      get :capacity
+      get :progress
       get :projects
     end
   end

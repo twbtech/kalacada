@@ -1,3 +1,16 @@
-$('.results-capacity-words').html('<%= j render('dashboards/results_capacity', data: @data) %>');
-$('.results-progress').html('<%= j render('dashboards/results_progress', data: @data) %>');
-$('.results-projects').html('<%= j render('dashboards/results_projects', data: @data) %>');
+var capacity_el = $('.results-capacity');
+capacity_el.html('<%= j spinner %>');
+capacity_el.attr('data-lazy-load-url', '<%= capacity_dashboards_path(@filter.to_sanitized_hash) %>');
+capacity_el.attr('data-lazy-load-params', '<%= @filter.to_sanitized_hash.to_query.html_safe %>');
+
+var progress_el = $('.results-progress');
+progress_el.html('<%= j spinner %>');
+progress_el.attr('data-lazy-load-url', '<%= progress_dashboards_path %>');
+progress_el.attr('data-lazy-load-params', '<%= @filter.to_sanitized_hash.to_query.html_safe %>');
+
+var projects_el = $('.results-projects');
+projects_el.html('<%= j spinner %>');
+projects_el.attr('data-lazy-load-url', '<%= projects_dashboards_path(@filter.to_sanitized_hash) %>');
+projects_el.attr('data-lazy-load-params', '<%= @filter.to_sanitized_hash.to_query.html_safe %>');
+
+lazyLoadElements();

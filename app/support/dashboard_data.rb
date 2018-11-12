@@ -1,32 +1,39 @@
 class DashboardData
-  attr_accessor :capacity_stats, :word_stats, :projects_stats, :tasks_stats, :projects, :count_pages, :current_page
+  attr_accessor :current_page
 
   def initialize(filter)
     @params = filter.to_sanitized_hash
 
-    self.capacity_stats = load_capacity_stats
-    self.word_stats     = load_word_stats
-    self.projects_stats = load_projects_stats
-    self.tasks_stats    = load_tasks_stats
-    self.count_pages    = projects_pages
-
     # sanitize current page number
     self.current_page = (params[:page].to_i < 1) ? 1 : [params[:page].to_i, count_pages].min
-    self.projects = load_projects
+  end
+
+  def word_stats
+    @word_stats ||= load_word_stats
+  end
+
+  def projects_stats
+    @projects_stats ||= load_projects_stats
+  end
+
+  def tasks_stats
+    @tasks_stats ||= load_tasks_stats
+  end
+
+  def capacity_stats
+    @capacity_stats ||= load_capacity_stats
+  end
+
+  def projects
+    @projects ||= load_projects
+  end
+
+  def count_pages
+    @count_pages ||= projects_pages
   end
 
   def load_projects
     Solas::Project.projects(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date), current_page).to_a
-  end
-
-  def projects_pages
-    projects_count = Solas::Project.count(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date))
-
-    if projects_count % 20 == 0
-      projects_count / 20
-    else
-      projects_count / 20 + 1
-    end
   end
 
   private
@@ -66,5 +73,15 @@ class DashboardData
       { label: 'unclaimed',   value: Solas::Task.not_claimed_yet_count(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date)) },
       { label: 'overdue',     value: Solas::Task.overdue_count(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date)) }
     ]
+  end
+
+  def projects_pages
+    projects_count = Solas::Project.count(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date))
+
+    if projects_count % 20 == 0
+      projects_count / 20
+    else
+      projects_count / 20 + 1
+    end
   end
 end

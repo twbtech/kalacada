@@ -20,8 +20,8 @@
       %button.btn.btn-primary= fa_icon(:refresh, text: 'Filter active translators')
 
     .col-md-5
-      .well.results-capacity-words
-        = render 'dashboards/results_capacity', data: @data
+      .well.results-capacity{ data: { lazy_load_url: capacity_dashboards_path } }
+        = spinner
 
   .row
     .col-md-7
@@ -57,10 +57,10 @@
       %button.btn.btn-primary= fa_icon(:refresh, text: 'Filter Timeframe')
 
     .col-md-5
-      .well.results-progress
-        = render 'dashboards/results_progress', data: @data
+      .well.results-progress{ data: { lazy_load_url: progress_dashboards_path } }
+        = spinner
 
   %h2 Projects
 
-  .results-projects
-    = render 'dashboards/results_projects', data: @data
+  .results-projects{ data: { lazy_load_url: projects_dashboards_path } }
+    = spinner
