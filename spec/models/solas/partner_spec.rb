@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe Solas::Partner do
+  before { allow(Rails.cache).to receive(:fetch).and_yield }
+
   describe 'self.source_languages' do
     it 'should execute correct SQL statement and return correct language objects' do
       expect_any_instance_of(Solas::Connection).to receive(:query).with(

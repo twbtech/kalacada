@@ -27,32 +27,37 @@ module Solas
     end
 
     def self.inactive_count(source_language, target_language)
-      query do
+      query do |connection|
         conditions = [
-          ("language_1_id = #{source_language}" if source_language.present?),
-          ("language_2_id = #{target_language}" if target_language.present?)
+          ("language_id = #{source_language}" if source_language.present? && target_language.blank?),
+          ("language_id = #{target_language}" if target_language.present? && source_language.blank?)
         ].compact.join(' AND ')
-
-        conditions = "AND #{conditions}" if conditions.present?
 
         q = if conditions.present?
               <<-QUERY
-                SELECT COUNT(DISTINCT ul3.user_id) AS count FROM
-                (
-                  SELECT ul1.user_id, ul1.language_id AS language_1_id, ul2.language_id AS language_2_id FROM
+                SELECT COUNT(DISTINCT ul1.user_id) AS count FROM
                   (
-                    (SELECT id AS user_id, language_id FROM Users WHERE language_id IS NOT NULL) UNION
-                    (SELECT user_id, language_id FROM UserSecondaryLanguages WHERE language_id IS NOT NULL)
+                    (SELECT id AS user_id, language_id FROM Users WHERE #{conditions}) UNION
+                    (SELECT user_id, language_id FROM UserSecondaryLanguages WHERE #{conditions})
+                  ) AS ul1
+                LEFT JOIN TaskClaims ON TaskClaims.user_id = ul1.user_id
+                WHERE TaskClaims.id IS NULL
+              QUERY
+            elsif source_language.present? && target_language.present?
+              <<-QUERY
+                SELECT COUNT(DISTINCT ul1.user_id) AS count FROM
+                  (
+                    (SELECT id AS user_id, language_id FROM Users WHERE language_id = #{source_language}) UNION
+                    (SELECT user_id, language_id FROM UserSecondaryLanguages WHERE language_id = #{source_language})
                   ) AS ul1
                   JOIN
                   (
-                    (SELECT id AS user_id, language_id FROM Users WHERE language_id IS NOT NULL) UNION
-                    (SELECT user_id, language_id FROM UserSecondaryLanguages WHERE language_id IS NOT NULL)
+                    (SELECT id AS user_id, language_id FROM Users WHERE language_id = #{target_language}) UNION
+                    (SELECT user_id, language_id FROM UserSecondaryLanguages WHERE language_id = #{target_language})
                   ) AS ul2
                   ON ul1.user_id = ul2.user_id
-                ) AS ul3
-                LEFT JOIN TaskClaims ON TaskClaims.user_id = ul3.user_id
-                WHERE TaskClaims.id IS NULL #{conditions}
+                LEFT JOIN TaskClaims ON TaskClaims.user_id = ul1.user_id
+                WHERE TaskClaims.id IS NULL
               QUERY
             else
               <<-QUERY
@@ -62,7 +67,7 @@ module Solas
               QUERY
             end
 
-        0 # connection.query(q).first['count']
+        connection.query(q).first['count']
       end
     end
   end
