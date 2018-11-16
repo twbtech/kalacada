@@ -8,5 +8,22 @@
     = link_to 'Kató Analytics', root_path, class: 'navbar-brand'
 
   .collapse.navbar-collapse
-    %ul.nav.navbar-nav.navbar-right
-      %li= link_to 'Logout', logout_path, class: 'pull-right'
+    %ul.nav.navbar-nav
+      %li= link_to 'Home', 'https://trommons.org'
+
+      - if logged_in_user
+        %li= link_to 'Profile', "https://trommons.org/#{logged_in_user.id}/profile/"
+
+      %li= link_to 'FAQ', 'https://community.translatorswb.org/c/kato-q-a'
+      %li= link_to 'Kató Community', 'https://community.translatorswb.org/'
+      %li.active= link_to 'Kató Analytics', 'https://community.translatorswb.org/'
+
+
+    - if logged_in_user
+      %ul.nav.navbar-nav.navbar-right
+        %li
+          = link_to "https://trommons.org/#{logged_in_user.id}/profile/", class: 'pull-right' do
+            = image_tag 'https://www.gravatar.com/avatar/08dfba1083774e58ca17f377f44d47b7?s=20%26r=g'
+            = logged_in_user.display_name
+
+        %li= link_to 'Logout', logout_path, class: 'pull-right'

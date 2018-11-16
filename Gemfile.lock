@@ -237,6 +237,8 @@ GEM
       ruby-progressbar (~> 1.7)
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-progressbar (1.10.0)
+    ruby-saml (1.9.0)
+      nokogiri (>= 1.5.10)
     ruby_dep (1.5.0)
     rubyzip (1.2.2)
     sass (3.5.7)
@@ -331,6 +333,7 @@ DEPENDENCIES
   rspec-rails
   rspec_junit_formatter
   rubocop
+  ruby-saml
   sass-rails (~> 5.0)
   selenium-webdriver
   shoulda-matchers

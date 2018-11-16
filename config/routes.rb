@@ -10,5 +10,8 @@ Rails.application.routes.draw do
   end
 
   match '/login', to: 'sessions#login', via: [:get, :post], as: 'login'
-  match '/logout', to: 'sessions#logout', via: :get, as: 'logout'
+  get '/logout', to: 'sessions#logout', as: 'logout'
+
+  get  '/saml',         to: 'saml#index',  as: 'saml_login'
+  post '/saml/consume', to: 'saml#consume'
 end
