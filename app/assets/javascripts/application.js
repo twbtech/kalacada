@@ -71,3 +71,8 @@ $(document).ajaxStart(function() {
 $(document).ajaxStop(function() {
   $('.btn').removeClass('disabled');
 });
+
+$(document).on('click', '.btn.disabled', function(e) {
+  e.preventDefault();
+  e.stopPropagation();
+});

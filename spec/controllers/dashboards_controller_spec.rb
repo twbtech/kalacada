@@ -76,4 +76,23 @@ describe DashboardsController do
       expect(assigns[:data]).to be_present
     end
   end
+
+  describe 'access when logged out' do
+    it 'should allow access in development environment' do
+      logout
+      allow(Rails.env).to receive(:development?).and_return true
+
+      get :index
+      expect(response).to be_success
+    end
+
+    it 'should redirect to login in production environment' do
+      logout
+      allow(Rails.env).to receive(:development?).and_return false
+      allow(Rails.env).to receive(:production?).and_return true
+
+      get :index
+      expect(response).to redirect_to(login_path)
+    end
+  end
 end

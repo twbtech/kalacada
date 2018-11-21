@@ -10,19 +10,34 @@ module Solas
     end
 
     def initialize
-      @connection = Mysql2::Client.new solas_config[:database]
+      @mutex = Mutex.new
     end
 
     def query(statement)
       Rails.logger.info "SOLAS SQL Query: #{query_label}:\n#{statement}\n\n" if Rails.env.development?
-      @connection.query(statement)
+
+      @mutex.synchronize do
+        begin
+          connection.query(statement)
+        rescue
+          close
+          connection.query(statement)
+        end
+      end
     end
 
     def close
-      @connection.close
+      @mutex.synchronize do
+        @connection&.close
+        @connection = nil
+      end
     end
 
     private
+
+    def connection
+      @connection ||= Mysql2::Client.new solas_config[:database]
+    end
 
     def solas_config
       unless @config
