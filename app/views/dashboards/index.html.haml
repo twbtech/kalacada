@@ -17,8 +17,6 @@
             %label.control-label Target Language
             = select_tag :target_lang, target_language_options_for_select, class: 'form-control'
 
-      %button.btn.btn-primary= fa_icon(:refresh, text: 'Filter active translators')
-
     .col-md-5
       .well.results-capacity{ data: { lazy_load_url: capacity_dashboards_path } }
         = spinner
@@ -39,8 +37,6 @@
             %label.control-label Project Manager
             = select_tag :project_manager, project_manager_options_for_select, class: 'form-control'
 
-      %button.btn.btn-primary= fa_icon(:refresh, text: 'Filter Partners and Project Managers')
-
       %h2 Timeframe for Progress:
 
       .row
@@ -54,7 +50,7 @@
             %label.control-label To date
             %input.js-datepicker.form-control{ name: 'to_date', type: 'text', autocomplete: 'off' }
 
-      %button.btn.btn-primary= fa_icon(:refresh, text: 'Filter Timeframe')
+      %button.btn.btn-primary.top-spaced-4x.pull-right= fa_icon(:refresh, text: 'Apply all filters')
 
     .col-md-5
       .well.results-progress{ data: { lazy_load_url: progress_dashboards_path } }
