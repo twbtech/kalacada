@@ -66,6 +66,7 @@ module Solas
 
       query do |connection|
         conditions = [
+          ("Tasks.`task-type_id` = 2"), # translation tasks
           ("Tasks.`language_id-source` = #{source_language}" if source_language.present?),
           ("Tasks.`language_id-target` = #{target_language}" if target_language.present?),
           ("Organisations.id = #{organisation_id}" if organisation_id.present?),

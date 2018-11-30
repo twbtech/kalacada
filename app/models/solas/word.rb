@@ -10,6 +10,7 @@ module Solas
 
       query do |connection|
         conditions = [
+          ("Tasks.`task-type_id` = 2"), # translation tasks
           ("Tasks.`language_id-source` = #{source_language}" if source_language.present?),
           ("Tasks.`language_id-target` = #{target_language}" if target_language.present?),
           ("Organisations.id = #{organisation_id}" if organisation_id.present?),
@@ -52,8 +53,7 @@ module Solas
     end
 
     def self.not_claimed_yet_count(params)
-      count params, conditions: 'Tasks.`task-status_id` < 3',
-                    joins:      'JOIN TaskUnclaims ON Tasks.id = TaskUnclaims.task_id'
+      count(params, conditions: 'Tasks.`task-status_id` < 3')
     end
 
     def self.overdue_count(params)
