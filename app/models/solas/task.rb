@@ -53,8 +53,7 @@ module Solas
     end
 
     def self.not_claimed_yet_count(params)
-      count params, conditions: 'Tasks.`task-status_id` < 3',
-                    joins:      'JOIN TaskUnclaims ON Tasks.id = TaskUnclaims.task_id'
+      count(params, conditions: 'Tasks.`task-status_id` < 3')
     end
 
     def self.overdue_count(params)
