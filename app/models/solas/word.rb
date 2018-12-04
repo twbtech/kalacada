@@ -40,7 +40,45 @@ module Solas
     end
 
     def self.completed_count(params)
-      count(params, conditions: 'Tasks.`task-status_id` = 4')
+      source_language = params[:source_lang]
+      target_language = params[:target_lang]
+      organisation_id = params[:partner]
+      project_manager = params[:project_manager]
+      from_date       = params[:from_date]
+      to_date         = params[:to_date]
+
+      query do |connection|
+        conditions = [
+          ("Tasks.`language_id-source` = #{source_language}" if source_language.present?),
+          ("Tasks.`language_id-target` = #{target_language}" if target_language.present?),
+          ("Organisations.id = #{organisation_id}" if organisation_id.present?),
+          ("Users.id = #{project_manager}" if project_manager.present?),
+          ("Tasks.`created-time` >= '#{from_date.to_s(:sql)}'" if from_date),
+          ("Tasks.`created-time` <= '#{to_date.to_s(:sql)}'" if to_date)
+        ].compact.join(' AND ')
+
+        conditions = "WHERE #{conditions}" if conditions.present?
+
+        connection.query(
+          <<-QUERY
+            SELECT SUM(wuc.`word-count`) as count FROM (
+              SELECT
+                DISTINCT Projects.id,
+                Projects.`word-count`,
+                Tasks.`language_id-source`,
+                Tasks.`language_id-target`,
+                MIN(Tasks.`task-status_id`) AS min_status
+              FROM Tasks
+                JOIN Projects ON Tasks.project_id = Projects.id
+                JOIN Organisations ON Projects.organisation_id = Organisations.id
+                LEFT JOIN Admins ON Organisations.id = Admins.organisation_id
+                LEFT JOIN Users ON Admins.user_id = Users.id
+              #{conditions}
+              GROUP BY Projects.id, Tasks.`language_id-source`, Tasks.`language_id-target`
+            ) AS wuc WHERE min_status = 4
+          QUERY
+        ).first['count'] || 0
+      end
     end
 
     def self.uncompleted_count(params)
