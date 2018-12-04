@@ -81,7 +81,6 @@ module Solas
             DISTINCT Projects.*,
             Tasks.`language_id-source`,
             Tasks.`language_id-target`,
-            SUM(Tasks.`word-count`) AS word_count,
             MIN(Tasks.`task-status_id`) AS min_status,
             MAX(Tasks.`task-status_id`) AS max_status,
             MIN(Tasks.deadline) AS task_deadline
@@ -100,7 +99,7 @@ module Solas
               title:              r['title'],
               created_at:         r['created'],
               deadline:           r['task_deadline'],
-              word_count:         r['word_count'],
+              word_count:         r['word-count'],
               organization_id:    r['organisation_id'],
               source_language_id: r['language_id-source'],
               target_language_id: r['language_id-target'],
