@@ -5,9 +5,10 @@ describe Solas::ProjectManager do
     it 'should execute correct SQL statement and return correct language objects' do
       expect_any_instance_of(Solas::Connection).to receive(:query).with(
         <<-QUERY
-          SELECT DISTINCT Users.id, Users.`display-name`
+          SELECT Users.id, Users.`display-name`
           FROM Users
             JOIN Admins ON Users.id = Admins.user_id
+          WHERE Admins.organisation_id IS NULL
           ORDER BY Users.`display-name` ASC
         QUERY
       ).and_return(

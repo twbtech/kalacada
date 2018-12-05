@@ -3,10 +3,10 @@ module Solas
     def self.all
       query do |connection|
         q = <<-QUERY
-          SELECT DISTINCT Users.id, Users.`display-name`
+          SELECT Users.id, Users.`display-name`
           FROM Users
             JOIN Admins ON Users.id = Admins.user_id
-          WHERE Admins.user_id IN (SELECT user_id FROM Admins WHERE organisation_id IS NULL) AND Admins.organisation_id IS NOT NULL
+          WHERE Admins.organisation_id IS NULL
           ORDER BY Users.`display-name` ASC
         QUERY
 

@@ -46,10 +46,7 @@ describe Solas::Task do
     end
 
     describe 'self.not_claimed_yet_count' do
-      it_should_behave_like :task_count,
-                            'Tasks.`task-status_id` < 3',
-                            joins: 'JOIN TaskUnclaims ON Tasks.id = TaskUnclaims.task_id' do
-
+      it_should_behave_like :task_count, 'Tasks.`task-status_id` < 3' do
         it 'should execute correct SQL statement and return correct count' do
           expect(Solas::Task.not_claimed_yet_count(params)).to eq 123
         end
@@ -57,9 +54,7 @@ describe Solas::Task do
     end
 
     describe 'self.overdue_count' do
-      it_should_behave_like :task_count,
-                            'Tasks.`task-status_id` <> 4 AND Tasks.deadline < now()' do
-
+      it_should_behave_like :task_count, 'Tasks.`task-status_id` <> 4 AND Tasks.deadline < now()' do
         it 'should execute correct SQL statement and return correct count' do
           expect(Solas::Task.overdue_count(params)).to eq 123
         end

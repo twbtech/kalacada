@@ -30,10 +30,37 @@ describe Solas::Word do
 
   shared_examples_for :all_word_counts do
     describe 'self.completed_count' do
-      it_should_behave_like :word_count, 'Tasks.`task-status_id` = 4' do
-        it 'should execute correct SQL statement and return correct count' do
-          expect(Solas::Word.completed_count(params)).to eq 123
-        end
+      before do
+        conditions = [options[:conditions]].map(&:presence).compact.join(' AND ')
+        conditions = "WHERE #{conditions}" if conditions.present?
+
+        expect_any_instance_of(Solas::Connection).to receive(:query).with(
+          <<-QUERY
+            SELECT SUM(wuc.`word-count`) as count FROM (
+              SELECT
+                DISTINCT Projects.id,
+                Projects.`word-count`,
+                Tasks.`language_id-source`,
+                Tasks.`language_id-target`,
+                MIN(Tasks.`task-status_id`) AS min_status
+              FROM Tasks
+                JOIN Projects ON Tasks.project_id = Projects.id
+                JOIN Organisations ON Projects.organisation_id = Organisations.id
+                LEFT JOIN Admins ON Organisations.id = Admins.organisation_id
+                LEFT JOIN Users ON Admins.user_id = Users.id
+              #{conditions}
+              GROUP BY Projects.id, Tasks.`language_id-source`, Tasks.`language_id-target`
+            ) AS wuc WHERE min_status = 4
+          QUERY
+        ).and_return(
+          [
+            { 'count' => 123 }
+          ]
+        )
+      end
+
+      it 'should execute correct SQL statement and return correct count' do
+        expect(Solas::Word.completed_count(params)).to eq 123
       end
     end
 
@@ -54,10 +81,7 @@ describe Solas::Word do
     end
 
     describe 'self.not_claimed_yet_count' do
-      it_should_behave_like :word_count,
-                            'Tasks.`task-status_id` < 3',
-                            joins: 'JOIN TaskUnclaims ON Tasks.id = TaskUnclaims.task_id' do
-
+      it_should_behave_like :word_count, 'Tasks.`task-status_id` < 3' do
         it 'should execute correct SQL statement and return correct count' do
           expect(Solas::Word.not_claimed_yet_count(params)).to eq 123
         end
@@ -65,9 +89,7 @@ describe Solas::Word do
     end
 
     describe 'self.overdue_count' do
-      it_should_behave_like :word_count,
-                            'Tasks.`task-status_id` <> 4 AND Tasks.deadline < now()' do
-
+      it_should_behave_like :word_count, 'Tasks.`task-status_id` <> 4 AND Tasks.deadline < now()' do
         it 'should execute correct SQL statement and return correct count' do
           expect(Solas::Word.overdue_count(params)).to eq 123
         end
