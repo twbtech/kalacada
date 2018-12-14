@@ -55,41 +55,23 @@ module Solas
       count(params, conditions: 'Tasks.`task-status_id` <> 4 AND Tasks.deadline < now()')
     end
 
-    def self.projects(params, page)
-      source_language = params[:source_lang]
-      target_language = params[:target_lang]
-      organisation_id = params[:partner]
-      project_manager = params[:project_manager]
-      from_date       = params[:from_date]
-      to_date         = params[:to_date]
-
+    def self.count_with_language_pairs(params)
       query do |connection|
-        conditions = [
-          ("Tasks.`language_id-source` = #{source_language}" if source_language.present?),
-          ("Tasks.`language_id-target` = #{target_language}" if target_language.present?),
-          ("Organisations.id = #{organisation_id}" if organisation_id.present?),
-          ("Users.id = #{project_manager}" if project_manager.present?),
-          ("Tasks.`created-time` >= '#{from_date.to_s(:sql)}'" if from_date),
-          ("Tasks.`created-time` <= '#{to_date.to_s(:sql)}'" if to_date)
-        ].compact.join(' AND ')
-
-        conditions = "WHERE #{conditions}" if conditions.present?
-
         q = <<-QUERY
-          SELECT
-            DISTINCT Projects.*,
-            Tasks.`language_id-source`,
-            Tasks.`language_id-target`,
-            MIN(Tasks.`task-status_id`) AS min_status,
-            MAX(Tasks.`task-status_id`) AS max_status,
-            MIN(Tasks.deadline) AS task_deadline
-          FROM Tasks
-            JOIN Projects ON Tasks.project_id = Projects.id
-            JOIN Organisations ON Projects.organisation_id = Organisations.id
-            LEFT JOIN Admins ON Organisations.id = Admins.organisation_id
-            LEFT JOIN Users ON Admins.user_id = Users.id
-          #{conditions}
-          GROUP BY Projects.id, Tasks.`language_id-source`, Tasks.`language_id-target`
+          SELECT COUNT(*) AS count
+          FROM (
+            #{projects_query(params)}
+          ) AS project_list
+        QUERY
+
+        connection.query(q).to_a.first['count']
+      end
+    end
+
+    def self.projects(params, page)
+      query do |connection|
+        q = <<-QUERY
+          #{projects_query(params)}
           LIMIT 20 OFFSET #{(page - 1) * 20}
         QUERY
 
@@ -106,6 +88,43 @@ module Solas
               max_status:         r['max_status']
         end
       end
+    end
+
+    def self.projects_query(params)
+      source_language = params[:source_lang]
+      target_language = params[:target_lang]
+      organisation_id = params[:partner]
+      project_manager = params[:project_manager]
+      from_date       = params[:from_date]
+      to_date         = params[:to_date]
+
+      conditions = [
+        ("Tasks.`language_id-source` = #{source_language}" if source_language.present?),
+        ("Tasks.`language_id-target` = #{target_language}" if target_language.present?),
+        ("Organisations.id = #{organisation_id}" if organisation_id.present?),
+        ("Users.id = #{project_manager}" if project_manager.present?),
+        ("Tasks.`created-time` >= '#{from_date.to_s(:sql)}'" if from_date),
+        ("Tasks.`created-time` <= '#{to_date.to_s(:sql)}'" if to_date)
+      ].compact.join(' AND ')
+
+      conditions = "WHERE #{conditions}" if conditions.present?
+
+      <<-QUERY
+        SELECT
+          DISTINCT Projects.*,
+          Tasks.`language_id-source`,
+          Tasks.`language_id-target`,
+          MIN(Tasks.`task-status_id`) AS min_status,
+          MAX(Tasks.`task-status_id`) AS max_status,
+          MIN(Tasks.deadline) AS task_deadline
+        FROM Tasks
+          JOIN Projects ON Tasks.project_id = Projects.id
+          JOIN Organisations ON Projects.organisation_id = Organisations.id
+          LEFT JOIN Admins ON Organisations.id = Admins.organisation_id
+          LEFT JOIN Users ON Admins.user_id = Users.id
+        #{conditions}
+        GROUP BY Projects.id, Tasks.`language_id-source`, Tasks.`language_id-target`
+      QUERY
     end
 
     def partner

@@ -76,7 +76,7 @@ class DashboardData
   end
 
   def projects_pages
-    projects_count = Solas::Project.count(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date))
+    projects_count = Solas::Project.count_with_language_pairs(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date))
 
     if projects_count % 20 == 0
       projects_count / 20

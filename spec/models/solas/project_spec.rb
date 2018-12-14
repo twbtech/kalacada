@@ -60,6 +60,76 @@ describe Solas::Project do
         end
       end
     end
+
+    describe 'self.count_with_language_pairs' do
+      before do
+        cond = ("WHERE #{options[:conditions]}" if options[:conditions].present?)
+
+        expect_any_instance_of(Solas::Connection).to receive(:query).with(
+          <<-QUERY
+          SELECT COUNT(*) AS count
+          FROM (
+                    SELECT
+          DISTINCT Projects.*,
+          Tasks.`language_id-source`,
+          Tasks.`language_id-target`,
+          MIN(Tasks.`task-status_id`) AS min_status,
+          MAX(Tasks.`task-status_id`) AS max_status,
+          MIN(Tasks.deadline) AS task_deadline
+        FROM Tasks
+          JOIN Projects ON Tasks.project_id = Projects.id
+          JOIN Organisations ON Projects.organisation_id = Organisations.id
+          LEFT JOIN Admins ON Organisations.id = Admins.organisation_id
+          LEFT JOIN Users ON Admins.user_id = Users.id
+        #{cond}
+        GROUP BY Projects.id, Tasks.`language_id-source`, Tasks.`language_id-target`
+
+          ) AS project_list
+        QUERY
+        ).and_return(
+          [
+            { 'count' => 123 }
+          ]
+        )
+      end
+
+      it 'should execute correct SQL statement and return list of projects' do
+        expect(Solas::Project.count_with_language_pairs(params)).to be 123
+      end
+    end
+
+    describe 'self.projects' do
+      before do
+        cond = ("WHERE #{options[:conditions]}" if options[:conditions].present?)
+
+        expect_any_instance_of(Solas::Connection).to receive(:query).with(
+          <<-QUERY
+                  SELECT
+          DISTINCT Projects.*,
+          Tasks.`language_id-source`,
+          Tasks.`language_id-target`,
+          MIN(Tasks.`task-status_id`) AS min_status,
+          MAX(Tasks.`task-status_id`) AS max_status,
+          MIN(Tasks.deadline) AS task_deadline
+        FROM Tasks
+          JOIN Projects ON Tasks.project_id = Projects.id
+          JOIN Organisations ON Projects.organisation_id = Organisations.id
+          LEFT JOIN Admins ON Organisations.id = Admins.organisation_id
+          LEFT JOIN Users ON Admins.user_id = Users.id
+        #{cond}
+        GROUP BY Projects.id, Tasks.`language_id-source`, Tasks.`language_id-target`
+
+          LIMIT 20 OFFSET 0
+        QUERY
+        ).and_return([{}])
+      end
+
+      it 'should execute correct SQL statement and return list of projects' do
+        result = Solas::Project.projects(params, 1)
+        expect(result.length).to be 1
+        expect(result.first.class).to be Solas::Project
+      end
+    end
   end
 
   context 'no filters' do
