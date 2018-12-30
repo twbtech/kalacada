@@ -1,11 +1,11 @@
 module ApplicationHelper
   def source_language_options_for_select
-    languages = [['Any source language', nil]] + Solas::Language.source_languages.map { |p| [p.name, p.id] }
+    languages = [['Any source language', nil]] + Solas::Language.source_languages(logged_in_user).map { |p| [p.name, p.id] }
     options_for_select(languages)
   end
 
   def target_language_options_for_select
-    languages = [['Any target language', nil]] + Solas::Language.target_languages.map { |p| [p.name, p.id] }
+    languages = [['Any target language', nil]] + Solas::Language.target_languages(logged_in_user).map { |p| [p.name, p.id] }
     options_for_select(languages)
   end
 

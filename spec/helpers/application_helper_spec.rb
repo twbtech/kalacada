@@ -11,16 +11,21 @@ describe ApplicationHelper do
   let(:project_manager_1) { Solas::ProjectManager.new id: 1, name: 'Some project manager' }
   let(:project_manager_2) { Solas::ProjectManager.new id: 2, name: 'Some other manager' }
 
+  let(:logged_in_user) do
+    allow_any_instance_of(Solas::User).to receive(:load_role).and_return(:admin)
+    Solas::User.new id: 1
+  end
+
   describe 'source_language_options_for_select' do
     it 'should return options for select of source languages' do
-      expect(Solas::Language).to receive(:source_languages).and_return([english, german])
+      expect(Solas::Language).to receive(:source_languages).with(logged_in_user).and_return([english, german])
       expect(source_language_options_for_select).to eq "<option value=\"\">Any source language</option>\n<option value=\"1\">English</option>\n<option value=\"2\">German</option>"
     end
   end
 
   describe 'target_language_options_for_select' do
     it 'should return options for select of target languages' do
-      expect(Solas::Language).to receive(:target_languages).and_return([english, russian])
+      expect(Solas::Language).to receive(:target_languages).with(logged_in_user).and_return([english, russian])
       expect(target_language_options_for_select).to eq "<option value=\"\">Any target language</option>\n<option value=\"1\">English</option>\n<option value=\"3\">Russian</option>"
     end
   end

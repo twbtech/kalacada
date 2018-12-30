@@ -11,26 +11,41 @@ module Solas
     end
 
     def self.from_saml_response(response)
-      User.new.tap do |user|
-        user.id           = response.attributes['urn:oid:0.9.2342.19200300.100.1.1'].to_i
-        user.display_name = response.attributes['urn:oid:2.16.840.1.113730.3.1.241']
-        user.email        = response.attributes['urn:oid:1.2.840.113549.1.9.1']
-        user.full_name    = [response.attributes['urn:oid:2.5.4.42'], response.attributes['urn:oid:2.5.4.4']].map(&:presence).compact.join(' ')
-        user.admin        = user.load_admin_status
-      end
+      User.new id:           response.attributes['urn:oid:0.9.2342.19200300.100.1.1'].to_i,
+               display_name: response.attributes['urn:oid:2.16.840.1.113730.3.1.241'],
+               email:        response.attributes['urn:oid:1.2.840.113549.1.9.1'],
+               full_name:    [response.attributes['urn:oid:2.5.4.42'], response.attributes['urn:oid:2.5.4.4']].map(&:presence).compact.join(' ')
     end
 
     def self.from_hash(hash)
       User.new(hash) if hash.try(:[], 'id').present?
     end
 
-    def admin?
-      admin.present? || SUPER_USER_IDS.include?(id)
+    def self.from_id(id)
+      User.new(id: id)
     end
 
-    def load_admin_status
-      self.class.query do |connection|
-        connection.query("SELECT COUNT(*) AS count FROM Admins WHERE user_id = #{id} AND organisation_id IS NULL").to_a.first['count'] > 0
+    def initialize(attrs)
+      super attrs
+
+      self.role = load_role
+    end
+
+    def admin?
+      role == :admin || SUPER_USER_IDS.include?(id)
+    end
+
+    def partner?
+      !admin? && role == :partner
+    end
+
+    def partner_organization
+      if partner?
+        @partner_organization ||= self.class.query do |connection|
+          organization_id = connection.query("SELECT organisation_id FROM Admins WHERE user_id = #{id}").to_a.first['organisation_id']
+
+          Solas::Partner.find(organization_id) if organization_id
+        end
       end
     end
 
@@ -39,9 +54,20 @@ module Solas
         id:           id,
         display_name: display_name,
         email:        email,
-        full_name:    full_name,
-        admin:        admin
+        full_name:    full_name
       }
+    end
+
+    private
+
+    def load_role
+      self.class.query do |connection|
+        if connection.query("SELECT COUNT(*) AS count FROM Admins WHERE user_id = #{id} AND organisation_id IS NULL").to_a.first['count'] > 0
+          :admin
+        elsif connection.query("SELECT COUNT(*) AS count FROM Admins WHERE user_id = #{id}").to_a.first['count'] > 0
+          :partner
+        end
+      end
     end
   end
 end

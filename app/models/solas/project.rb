@@ -128,7 +128,7 @@ module Solas
     end
 
     def partner
-      Solas::Partner.all.find { |p| p.id == organization_id }
+      Solas::Partner.find(organization_id)
     end
 
     def url

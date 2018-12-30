@@ -7,13 +7,22 @@ class DashboardFilter
 
   ATTRS.each { |attr| attr_reader attr }
 
-  def initialize(params)
+  attr_reader :logged_in_user
+
+  def initialize(params, logged_in_user)
+    @logged_in_user = logged_in_user
+
     INT_ATTRS.each do |attr|
       instance_variable_set "@#{attr}", (params[attr].to_i if params[attr].present?)
     end
 
     DATE_ATTRS.each do |attr|
       instance_variable_set "@#{attr}", (Date.parse(params[attr]) if params[attr].present?)
+    end
+
+    if logged_in_user.partner?
+      @partner         = logged_in_user.partner_organization.id
+      @project_manager = nil
     end
   end
 

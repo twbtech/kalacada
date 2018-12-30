@@ -1,11 +1,11 @@
 require 'spec_helper'
 
 describe Solas::User do
-  let(:user) { Solas::User.new id: 5, display_name: 'Alex', email: 'a.nikolskiy@hs-interactive.eu', full_name: 'Alexander Nikolskiy', admin: true }
+  let(:user) { Solas::User.new id: 5, display_name: 'Alex', email: 'a.nikolskiy@hs-interactive.eu', full_name: 'Alexander Nikolskiy' }
 
   describe 'self.from_saml_response' do
     it 'should return a new user with correct attribtues' do
-      expect_any_instance_of(Solas::User).to receive(:load_admin_status).and_return true
+      expect_any_instance_of(Solas::User).to receive(:load_role).and_return :admin
 
       response = OpenStruct.new attributes: {
         'urn:oid:0.9.2342.19200300.100.1.1' => '3',
@@ -21,49 +21,141 @@ describe Solas::User do
       expect(u.display_name).to eq 'Alex'
       expect(u.email).to eq 'a.nikolskiy@hs-interactive.eu'
       expect(u.full_name).to eq 'Alexander Nikolskiy'
-      expect(u.admin).to be true
+      expect(u.admin?).to be true
     end
   end
 
   describe 'self.from_hash' do
     it 'should return a user object created from hash' do
-      hash = { 'id' => 5, 'display_name' => 'Alex', 'email' => 'a.nikolskiy@hs-interactive.eu', 'full_name' => 'Alexander Nikolskiy', 'admin' => true }
+      expect_any_instance_of(Solas::User).to receive(:load_role).and_return :admin
+
+      hash = { 'id' => 5, 'display_name' => 'Alex', 'email' => 'a.nikolskiy@hs-interactive.eu', 'full_name' => 'Alexander Nikolskiy' }
       u = Solas::User.from_hash(hash)
 
       expect(u.id).to eq 5
       expect(u.display_name).to eq 'Alex'
       expect(u.email).to eq 'a.nikolskiy@hs-interactive.eu'
       expect(u.full_name).to eq 'Alexander Nikolskiy'
-      expect(u.admin).to be true
+      expect(u.admin?).to be true
     end
 
     it 'should return nil if there is no "id" provided in hash' do
-      hash = { 'display_name' => 'Alex', 'email' => 'a.nikolskiy@hs-interactive.eu', 'full_name' => 'Alexander Nikolskiy', 'admin' => true }
+      hash = { 'display_name' => 'Alex', 'email' => 'a.nikolskiy@hs-interactive.eu', 'full_name' => 'Alexander Nikolskiy' }
       expect(Solas::User.from_hash(hash)).to be nil
     end
   end
 
   describe 'admin?' do
-    it 'should return true if "admin" attribute is set to true' do
-      expect(Solas::User.new(admin: true).admin?).to be true
+    context 'role is admin' do
+      it 'should return true' do
+        expect_any_instance_of(Solas::User).to receive(:load_role).and_return :admin
+        expect(Solas::User.new({}).admin?).to be true
+      end
     end
 
-    it 'should return false if "admin" attribute is set to false' do
-      expect(Solas::User.new(admin: false).admin?).to be false
+    context 'role is partner' do
+      before { expect_any_instance_of(Solas::User).to receive(:load_role).and_return :partner }
+
+      it 'should return false' do
+        expect(Solas::User.new({}).admin?).to be false
+      end
+
+      it 'should return true if user is a whitelisted superuser' do
+        expect(Solas::User.new(id: 777).admin?).to be true
+      end
     end
 
-    it 'should return false if "admin" attribute is not set' do
-      expect(Solas::User.new.admin?).to be false
-    end
+    context 'role is not set' do
+      before { expect_any_instance_of(Solas::User).to receive(:load_role).and_return nil }
 
-    it 'should return true if user is a whitelisted superuser' do
-      expect(Solas::User.new(id: 777, admin: false).admin?).to be true
+      it 'should return false' do
+        expect(Solas::User.new({}).admin?).to be false
+      end
+
+      it 'should return true if user is a whitelisted superuser' do
+        expect(Solas::User.new(id: 777).admin?).to be true
+      end
     end
   end
 
-  describe 'load_admin_status' do
-    it 'should return true if user has a record in Admins table with organisation_id=nil' do
-      q = "SELECT COUNT(*) AS count FROM Admins WHERE user_id = #{user.id} AND organisation_id IS NULL"
+  describe 'partner?' do
+    context 'role is admin' do
+      it 'should return false' do
+        expect_any_instance_of(Solas::User).to receive(:load_role).and_return :admin
+        expect(Solas::User.new({}).partner?).to be false
+      end
+    end
+
+    context 'role is partner' do
+      before { expect_any_instance_of(Solas::User).to receive(:load_role).and_return :partner }
+
+      it 'should return true' do
+        expect(Solas::User.new({}).partner?).to be true
+      end
+
+      it 'should return true if user is a whitelisted superuser' do
+        expect(Solas::User.new(id: 777).partner?).to be false
+      end
+    end
+
+    context 'role is not set' do
+      before { expect_any_instance_of(Solas::User).to receive(:load_role).and_return nil }
+
+      it 'should return false' do
+        expect(Solas::User.new({}).partner?).to be false
+      end
+
+      it 'should return true if user is a whitelisted superuser' do
+        expect(Solas::User.new(id: 777).partner?).to be false
+      end
+    end
+  end
+
+  describe 'partner_organization' do
+    context 'user is an admin' do
+      before { expect_any_instance_of(Solas::User).to receive(:load_role).and_return :admin }
+
+      it 'should return nil' do
+        expect(user.partner_organization).to be nil
+      end
+    end
+
+    context 'user is a partner' do
+      before { expect_any_instance_of(Solas::User).to receive(:load_role).and_return :partner }
+
+      it 'should find and return partner organization' do
+        q = 'SELECT organisation_id FROM Admins WHERE user_id = 5'
+
+        expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
+          [
+            { 'organisation_id' => 3 }
+          ]
+        )
+
+        q = 'SELECT Organisations.* FROM Organisations WHERE Organisations.id = 3'
+
+        expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
+          [
+            { 'id' => 3, 'name' => 'Partner Inc.' }
+          ]
+        )
+
+        expect(user.partner_organization).to eq Solas::Partner.new(id: 3, name: 'Partner Inc.')
+      end
+    end
+
+    context 'user has no role' do
+      before { expect_any_instance_of(Solas::User).to receive(:load_role).and_return nil }
+
+      it 'should return nil' do
+        expect(user.partner_organization).to be nil
+      end
+    end
+  end
+
+  describe 'load_role' do
+    it 'should set user role to "admin" if user has a record in Admins table with organisation_id=nil' do
+      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5 AND organisation_id IS NULL'
 
       expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
         [
@@ -71,11 +163,11 @@ describe Solas::User do
         ]
       )
 
-      expect(user.load_admin_status).to be true
+      expect(user.role).to be :admin
     end
 
-    it 'should return true if user does not have a record in Admins table with organisation_id=nil' do
-      q = "SELECT COUNT(*) AS count FROM Admins WHERE user_id = #{user.id} AND organisation_id IS NULL"
+    it 'should set user role to "partner" if user has a record in Admins table, but he is not "admin"' do
+      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5 AND organisation_id IS NULL'
 
       expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
         [
@@ -83,13 +175,42 @@ describe Solas::User do
         ]
       )
 
-      expect(user.load_admin_status).to be false
+      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5'
+
+      expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
+        [
+          { 'count' => 1 }
+        ]
+      )
+
+      expect(user.role).to be :partner
+    end
+
+    it 'should not set user role if user does not have a record in Admins table' do
+      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5 AND organisation_id IS NULL'
+
+      expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
+        [
+          { 'count' => 0 }
+        ]
+      )
+
+      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5'
+
+      expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
+        [
+          { 'count' => 0 }
+        ]
+      )
+
+      expect(user.role).to be nil
     end
   end
 
   describe 'to_hash' do
     it 'should return a hash with correct user attributes' do
-      expect(user.to_hash).to eq(id: 5, display_name: 'Alex', email: 'a.nikolskiy@hs-interactive.eu', full_name: 'Alexander Nikolskiy', admin: true)
+      expect_any_instance_of(Solas::User).to receive(:load_role).and_return :admin
+      expect(user.to_hash).to eq(id: 5, display_name: 'Alex', email: 'a.nikolskiy@hs-interactive.eu', full_name: 'Alexander Nikolskiy')
     end
   end
 end

@@ -43,6 +43,7 @@ Spork.prefork do
       allow(Mysql2::Client).to receive(:new).and_return(solas_match_mysql_client)
       allow_any_instance_of(Solas::Connection).to receive(:solas_config).and_return({})
       allow(solas_match_mysql_client).to receive(:close)
+      allow(Rails.cache).to receive(:fetch).and_yield
     end
 
     config.after do

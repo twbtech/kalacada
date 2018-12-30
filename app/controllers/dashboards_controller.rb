@@ -20,9 +20,22 @@ class DashboardsController < ApplicationController
 
   private
 
+  before_action :check_dashboard_access
+  def check_dashboard_access
+    allowed_actions = if logged_in_user.try(:admin?)
+                        %w[index capacity progress projects]
+                      elsif logged_in_user.try(:partner?)
+                        %w[index progress projects]
+                      else
+                        []
+                      end
+
+    render status: :forbidden unless allowed_actions.include?(action_name)
+  end
+
   before_action :load_data
   def load_data
-    @filter = DashboardFilter.new(params.permit(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date, :page))
+    @filter = DashboardFilter.new(params.permit(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date, :page), logged_in_user)
     @data   = DashboardData.new(@filter)
   end
 

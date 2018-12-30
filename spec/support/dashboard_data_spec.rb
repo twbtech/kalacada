@@ -1,14 +1,24 @@
 require 'spec_helper'
 
 describe DashboardData do
+  let(:logged_in_user) do
+    allow_any_instance_of(Solas::User).to receive(:load_role).and_return(:admin)
+    Solas::User.new id: 3
+  end
+
   let(:filter) do
-    DashboardFilter.new source_lang:     '1; SQL INJECTION STATEMENT',
-                        target_lang:     '2; SQL INJECTION STATEMENT',
-                        partner:         '3; SQL INJECTION STATEMENT',
-                        project_manager: '4; SQL INJECTION STATEMENT',
-                        from_date:       '01.10.2018',
-                        to_date:         '08.10.2018',
-                        page:            '7; SQL INJECTION STATEMENT'
+    DashboardFilter.new(
+      {
+        source_lang:     '1; SQL INJECTION STATEMENT',
+        target_lang:     '2; SQL INJECTION STATEMENT',
+        partner:         '3; SQL INJECTION STATEMENT',
+        project_manager: '4; SQL INJECTION STATEMENT',
+        from_date:       '01.10.2018',
+        to_date:         '08.10.2018',
+        page:            '7; SQL INJECTION STATEMENT'
+      },
+      logged_in_user
+    )
   end
 
   let(:data) { DashboardData.new(filter) }
@@ -27,7 +37,7 @@ describe DashboardData do
     allow(Solas::Project).to receive(:in_progress_count).and_return(9)
     allow(Solas::Project).to receive(:not_claimed_yet_count).and_return(10)
     allow(Solas::Project).to receive(:overdue_count).and_return(11)
-    allow(Solas::Project).to receive(:count).and_return(38)
+    allow(Solas::Project).to receive(:count_with_language_pairs).and_return(38)
     allow(Solas::Project).to receive(:projects).and_return([]) # for the ease we don't return 38 projects in this test
 
     allow(Solas::Task).to receive(:completed_count).and_return(12)

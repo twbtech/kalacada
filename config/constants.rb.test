@@ -1,3 +1,4 @@
 PRODUCTION_SITE_URL   = 'production_site_url'.freeze
 SAML_IDP_METADATA_URL = 'saml_id_metadata_url'.freeze
 SUPER_USER_IDS        = [777].freeze
+DEVELOPMENT_USER_ID   = 777

@@ -15,7 +15,7 @@ class SamlController < ApplicationController
     if response.is_valid?
       user = Solas::User.from_saml_response(response)
 
-      if user.admin?
+      if user.admin? || user.partner?
         session[:logged_in_user] = user.to_hash
         redirect_to root_path
       else
