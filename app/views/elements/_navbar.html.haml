@@ -16,7 +16,10 @@
 
       %li= link_to 'FAQ', 'https://community.translatorswb.org/c/kato-q-a'
       %li= link_to 'Kató Community', 'https://community.translatorswb.org/'
-      %li.active= link_to 'Kató Analytics', 'https://community.translatorswb.org/'
+      %li{ class: ('active' if params[:action] != 'metabase') }= link_to 'Kató Analytics', root_path
+
+      - if logged_in_user.try(:admin?)
+        %li{ class: ('active' if params[:action] == 'metabase') }= link_to 'Metabase', metabase_dashboards_path
 
 
     - if logged_in_user

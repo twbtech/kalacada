@@ -18,19 +18,33 @@ class DashboardsController < ApplicationController
     respond_to(&:js)
   end
 
+  def metabase
+    respond_to do |format|
+      format.html do
+        payload = {
+          resource: { dashboard: METABASE_DASHBOARD_ID },
+          params:   {}
+        }
+
+        token       = JWT.encode payload, METABASE_SECRET_KEY
+        @iframe_url = "#{METABASE_SITE_URL}/embed/dashboard/#{token}#bordered=false&titled=false"
+      end
+    end
+  end
+
   private
 
   before_action :check_dashboard_access
   def check_dashboard_access
     allowed_actions = if logged_in_user.try(:admin?)
-                        %w[index capacity progress projects]
+                        %w[index capacity progress projects metabase]
                       elsif logged_in_user.try(:partner?)
                         %w[index progress projects]
                       else
                         []
                       end
 
-    render status: :forbidden unless allowed_actions.include?(action_name)
+    head :forbidden unless allowed_actions.include?(action_name)
   end
 
   before_action :load_data

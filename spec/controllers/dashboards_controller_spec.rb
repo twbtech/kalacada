@@ -1,6 +1,21 @@
 require 'spec_helper'
 
 describe DashboardsController do
+  shared_examples_for :dashboards_controller_with_access do
+    it 'should succeed' do
+      expect(response).to be_success
+    end
+
+    it 'should initialize dashboard filter' do
+      expect(assigns[:filter]).to be_present
+      expect(assigns[:filter].partner).to be nil
+    end
+
+    it 'should load dashboard data' do
+      expect(assigns[:data]).to be_present
+    end
+  end
+
   shared_examples_for :dashboards_controller_xhr_with_access do
     it 'should succeed' do
       expect(response).to be_success
@@ -32,7 +47,21 @@ describe DashboardsController do
   end
 
   shared_examples_for :dashboards_controller_xhr_without_access do
-    it 'should redirect to login' do
+    it 'should not suceed' do
+      expect(response).to_not be_success
+    end
+
+    it 'should not initialize filter' do
+      expect(assigns[:filter]).to be nil
+    end
+
+    it 'should not load dashboard data' do
+      expect(assigns[:data]).to be nil
+    end
+  end
+
+  shared_examples_for :dashboards_controller_without_access do
+    it 'should not suceed' do
       expect(response).to_not be_success
     end
 
@@ -107,6 +136,11 @@ describe DashboardsController do
       before { get :projects, xhr: true }
       it_should_behave_like :dashboards_controller_xhr_with_access
     end
+
+    describe 'GET metabase' do
+      before { get :metabase }
+      it_should_behave_like :dashboards_controller_with_access
+    end
   end
 
   context 'logged in as a partner' do
@@ -175,6 +209,11 @@ describe DashboardsController do
       before { get :projects, xhr: true }
       it_should_behave_like :dashboards_controller_xhr_with_access_limited_to_partner
     end
+
+    describe 'GET metabase - no access' do
+      before { get :metabase }
+      it_should_behave_like :dashboards_controller_without_access
+    end
   end
 
   context 'not logged in' do
@@ -212,6 +251,11 @@ describe DashboardsController do
     describe 'XHR GET projects' do
       before { get :projects, xhr: true }
       it_should_behave_like :dashboards_controller_xhr_without_access
+    end
+
+    describe 'GET metabase' do
+      before { get :metabase }
+      it_should_behave_like :dashboards_controller_without_access
     end
   end
 end

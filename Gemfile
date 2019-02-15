@@ -22,6 +22,7 @@ gem 'font-awesome-rails', git: 'https://github.com/bokmann/font-awesome-rails'
 gem 'simple_form', git: 'https://github.com/plataformatec/simple_form'
 gem 'exception_notification_rails3', require: 'exception_notifier'
 gem 'haml'
+gem 'jwt'
 
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
