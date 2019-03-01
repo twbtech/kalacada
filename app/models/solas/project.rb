@@ -10,12 +10,12 @@ module Solas
 
       query do |connection|
         conditions = [
-          ("Tasks.`language_id-source` = #{source_language}" if source_language.present?),
-          ("Tasks.`language_id-target` = #{target_language}" if target_language.present?),
-          ("Organisations.id = #{organisation_id}" if organisation_id.present?),
-          ("Users.id = #{project_manager}" if project_manager.present?),
-          ("Tasks.`created-time` >= '#{from_date.to_s(:sql)}'" if from_date),
-          ("Tasks.`created-time` <= '#{to_date.to_s(:sql)}'" if to_date)
+          ("tasks_kp.langsourceid = #{source_language}" if source_language.present?),
+          ("tasks_kp.langtargetid = #{target_language}" if target_language.present?),
+          ("partners_kp.kpid = #{organisation_id}" if organisation_id.present?),
+          ("users_kp.kpid = #{project_manager}" if project_manager.present?),
+          ("tasks_kp.createdtime >= '#{from_date.to_s(:sql)}'" if from_date),
+          ("tasks_kp.createdtime <= '#{to_date.to_s(:sql)}'" if to_date)
         ].compact.join(' AND ')
 
         conditions = [options[:conditions], conditions].map(&:presence).compact.join(' AND ')
@@ -25,12 +25,12 @@ module Solas
           <<-QUERY
             SELECT COUNT(DISTINCT project_id) AS count
             FROM (
-              SELECT DISTINCT Tasks.id, Tasks.project_id AS project_id
-              FROM Tasks
-                JOIN Projects ON Tasks.project_id = Projects.id
-                JOIN Organisations ON Projects.organisation_id = Organisations.id
-                LEFT JOIN Admins ON Admins.organisation_id = Organisations.id
-                LEFT JOIN Users ON Admins.user_id = Users.id
+              SELECT DISTINCT tasks_kp.id, tasks_kp.project_id AS project_id
+              FROM tasks_kp
+                JOIN projects_kp ON tasks_kp.project_id = projects_kp.pid
+                JOIN partners_kp ON projects_kp.orgid = partners_kp.kpid
+                LEFT JOIN SolasMatch.Admins ON SolasMatch.Admins.organisation_id = partners_kp.kpid
+                LEFT JOIN users_kp ON SolasMatch.Admins.user_id = users_kp.kpid
                 #{options[:joins]}
               #{conditions}
             ) AS wuc
@@ -40,19 +40,19 @@ module Solas
     end
 
     def self.completed_count(params)
-      count(params, conditions: 'Tasks.`task-status_id` = 4')
+      count(params, conditions: 'tasks_kp.taskstatusid = 4')
     end
 
     def self.in_progress_count(params)
-      count(params, conditions: 'Tasks.`task-status_id` = 3')
+      count(params, conditions: 'tasks_kp.taskstatusid = 3')
     end
 
     def self.not_claimed_yet_count(params)
-      count(params, conditions: 'Tasks.`task-status_id` < 3')
+      count(params, conditions: 'tasks_kp.taskstatusid < 3')
     end
 
     def self.overdue_count(params)
-      count(params, conditions: 'Tasks.`task-status_id` <> 4 AND Tasks.deadline < now()')
+      count(params, conditions: 'tasks_kp.taskstatusid <> 4 AND tasks_kp.deadline < now()')
     end
 
     def self.count_with_language_pairs(params)
@@ -78,12 +78,12 @@ module Solas
         connection.query(q).to_a.map do |r|
           new id:                 r['id'],
               title:              r['title'],
-              created_at:         r['created'],
+              created_at:         r['createtime'],
               deadline:           r['task_deadline'],
-              word_count:         r['word-count'],
-              organization_id:    r['organisation_id'],
-              source_language_id: r['language_id-source'],
-              target_language_id: r['language_id-target'],
+              word_count:         r['wordcount'],
+              organization_id:    r['orgid'],
+              source_language_id: r['langsourceid'],
+              target_language_id: r['langtargetid'],
               min_status:         r['min_status'],
               max_status:         r['max_status']
         end
@@ -99,31 +99,31 @@ module Solas
       to_date         = params[:to_date]
 
       conditions = [
-        ("Tasks.`language_id-source` = #{source_language}" if source_language.present?),
-        ("Tasks.`language_id-target` = #{target_language}" if target_language.present?),
-        ("Organisations.id = #{organisation_id}" if organisation_id.present?),
-        ("Users.id = #{project_manager}" if project_manager.present?),
-        ("Tasks.`created-time` >= '#{from_date.to_s(:sql)}'" if from_date),
-        ("Tasks.`created-time` <= '#{to_date.to_s(:sql)}'" if to_date)
+        ("tasks_kp.langsourceid = #{source_language}" if source_language.present?),
+        ("tasks_kp.langtargetid = #{target_language}" if target_language.present?),
+        ("partners_kp.kpid = #{organisation_id}" if organisation_id.present?),
+        ("users_kp.kpid = #{project_manager}" if project_manager.present?),
+        ("tasks_kp.createdtime >= '#{from_date.to_s(:sql)}'" if from_date),
+        ("tasks_kp.createdtime <= '#{to_date.to_s(:sql)}'" if to_date)
       ].compact.join(' AND ')
 
       conditions = "WHERE #{conditions}" if conditions.present?
 
       <<-QUERY
         SELECT
-          DISTINCT Projects.*,
-          Tasks.`language_id-source`,
-          Tasks.`language_id-target`,
-          MIN(Tasks.`task-status_id`) AS min_status,
-          MAX(Tasks.`task-status_id`) AS max_status,
-          MIN(Tasks.deadline) AS task_deadline
-        FROM Tasks
-          JOIN Projects ON Tasks.project_id = Projects.id
-          JOIN Organisations ON Projects.organisation_id = Organisations.id
-          LEFT JOIN Admins ON Organisations.id = Admins.organisation_id
-          LEFT JOIN Users ON Admins.user_id = Users.id
+          DISTINCT projects_kp.*,
+          tasks_kp.langsourceid,
+          tasks_kp.langtargetid,
+          MIN(tasks_kp.taskstatusid) AS min_status,
+          MAX(tasks_kp.taskstatusid) AS max_status,
+          MIN(tasks_kp.deadline) AS task_deadline
+        FROM tasks_kp
+          JOIN projects_kp ON tasks_kp.project_id = projects_kp.pid
+          JOIN partners_kp ON projects_kp.orgid = partners_kp.kpid
+          LEFT JOIN SolasMatch.Admins ON partners_kp.kpid = SolasMatch.Admins.organisation_id
+          LEFT JOIN users_kp ON SolasMatch.Admins.user_id = users_kp.kpid
         #{conditions}
-        GROUP BY Projects.id, Tasks.`language_id-source`, Tasks.`language_id-target`
+        GROUP BY projects_kp.pid, tasks_kp.langsourceid, tasks_kp.langtargetid
       QUERY
     end
 

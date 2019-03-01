@@ -5,15 +5,15 @@ describe Solas::Partner do
     it 'should execute correct SQL statement and return correct partner objects' do
       expect_any_instance_of(Solas::Connection).to receive(:query).with(
         <<-QUERY
-            SELECT DISTINCT Organisations.*
-            FROM Organisations
-              JOIN Projects ON Organisations.id = Projects.organisation_id
-            ORDER BY Organisations.name ASC
+            SELECT DISTINCT partners_kp.*
+            FROM partners_kp
+              JOIN projects_kp ON partners_kp.kpid = projects_kp.orgid
+            ORDER BY partners_kp.name ASC
         QUERY
       ).and_return(
         [
-          { 'id' => 1, 'name' => 'Partner Inc.' },
-          { 'id' => 2, 'name' => 'Another partner Ltd.' }
+          { 'kpid' => 1, 'name' => 'Partner Inc.' },
+          { 'kpid' => 2, 'name' => 'Another partner Ltd.' }
         ]
       )
 
@@ -26,7 +26,7 @@ describe Solas::Partner do
   describe 'self.find' do
     it 'should execute correct SQL statement and return a parner object' do
       expect_any_instance_of(Solas::Connection).to receive(:query).with(
-        'SELECT Organisations.* FROM Organisations WHERE Organisations.id = 1'
+        'SELECT partners_kp.* FROM partners_kp WHERE partners_kp.kpid = 1'
       ).and_return(
         [
           { 'id' => 1, 'name' => 'Partner Inc.' }

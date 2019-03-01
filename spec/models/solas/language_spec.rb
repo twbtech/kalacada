@@ -13,7 +13,7 @@ describe Solas::Language do
           <<-QUERY
             SELECT DISTINCT Languages.*
             FROM Languages
-              JOIN Tasks ON Languages.id = Tasks.`language_id-source`
+              JOIN tasks_kp ON Languages.id = tasks_kp.langsourceid
 
             ORDER BY Languages.`en-name` ASC
           QUERY
@@ -36,9 +36,9 @@ describe Solas::Language do
           <<-QUERY
             SELECT DISTINCT Languages.*
             FROM Languages
-              JOIN Tasks ON Languages.id = Tasks.`language_id-source`
-              JOIN Projects ON Tasks.project_id = Projects.id
-            WHERE Projects.organisation_id = #{partner_organization.id}
+              JOIN tasks_kp ON Languages.id = tasks_kp.langsourceid
+              JOIN projects_kp ON tasks_kp.project_id = projects_kp.pid
+            WHERE projects_kp.orgid = #{partner_organization.id}
             ORDER BY Languages.`en-name` ASC
           QUERY
         ).and_return(
@@ -62,7 +62,7 @@ describe Solas::Language do
           <<-QUERY
               SELECT DISTINCT Languages.*
               FROM Languages
-                JOIN Tasks ON Languages.id = Tasks.`language_id-target`
+                JOIN tasks_kp ON Languages.id = tasks_kp.langtargetid
 
               ORDER BY Languages.`en-name` ASC
           QUERY
@@ -85,9 +85,9 @@ describe Solas::Language do
           <<-QUERY
               SELECT DISTINCT Languages.*
               FROM Languages
-                JOIN Tasks ON Languages.id = Tasks.`language_id-target`
-                JOIN Projects ON Tasks.project_id = Projects.id
-              WHERE Projects.organisation_id = #{partner_organization.id}
+                JOIN tasks_kp ON Languages.id = tasks_kp.langtargetid
+                JOIN projects_kp ON tasks_kp.project_id = projects_kp.pid
+              WHERE projects_kp.orgid = #{partner_organization.id}
               ORDER BY Languages.`en-name` ASC
           QUERY
         ).and_return(

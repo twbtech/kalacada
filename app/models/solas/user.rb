@@ -42,7 +42,7 @@ module Solas
     def partner_organization
       if partner?
         @partner_organization ||= self.class.query do |connection|
-          organization_id = connection.query("SELECT organisation_id FROM Admins WHERE user_id = #{id}").to_a.first['organisation_id']
+          organization_id = connection.query("SELECT organisation_id FROM SolasMatch.Admins WHERE user_id = #{id}").to_a.first['organisation_id']
 
           Solas::Partner.find(organization_id) if organization_id
         end
@@ -62,9 +62,9 @@ module Solas
 
     def load_role
       self.class.query do |connection|
-        if connection.query("SELECT COUNT(*) AS count FROM Admins WHERE user_id = #{id} AND organisation_id IS NULL").to_a.first['count'] > 0
+        if connection.query("SELECT COUNT(*) AS count FROM SolasMatch.Admins WHERE user_id = #{id} AND organisation_id IS NULL").to_a.first['count'] > 0
           :admin
-        elsif connection.query("SELECT COUNT(*) AS count FROM Admins WHERE user_id = #{id}").to_a.first['count'] > 0
+        elsif connection.query("SELECT COUNT(*) AS count FROM SolasMatch.Admins WHERE user_id = #{id}").to_a.first['count'] > 0
           :partner
         end
       end

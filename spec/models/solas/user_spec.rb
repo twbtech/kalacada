@@ -124,7 +124,7 @@ describe Solas::User do
       before { expect_any_instance_of(Solas::User).to receive(:load_role).and_return :partner }
 
       it 'should find and return partner organization' do
-        q = 'SELECT organisation_id FROM Admins WHERE user_id = 5'
+        q = 'SELECT organisation_id FROM SolasMatch.Admins WHERE user_id = 5'
 
         expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
           [
@@ -132,7 +132,7 @@ describe Solas::User do
           ]
         )
 
-        q = 'SELECT Organisations.* FROM Organisations WHERE Organisations.id = 3'
+        q = 'SELECT partners_kp.* FROM partners_kp WHERE partners_kp.kpid = 3'
 
         expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
           [
@@ -155,7 +155,7 @@ describe Solas::User do
 
   describe 'load_role' do
     it 'should set user role to "admin" if user has a record in Admins table with organisation_id=nil' do
-      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5 AND organisation_id IS NULL'
+      q = 'SELECT COUNT(*) AS count FROM SolasMatch.Admins WHERE user_id = 5 AND organisation_id IS NULL'
 
       expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
         [
@@ -167,7 +167,7 @@ describe Solas::User do
     end
 
     it 'should set user role to "partner" if user has a record in Admins table, but he is not "admin"' do
-      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5 AND organisation_id IS NULL'
+      q = 'SELECT COUNT(*) AS count FROM SolasMatch.Admins WHERE user_id = 5 AND organisation_id IS NULL'
 
       expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
         [
@@ -175,7 +175,7 @@ describe Solas::User do
         ]
       )
 
-      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5'
+      q = 'SELECT COUNT(*) AS count FROM SolasMatch.Admins WHERE user_id = 5'
 
       expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
         [
@@ -187,7 +187,7 @@ describe Solas::User do
     end
 
     it 'should not set user role if user does not have a record in Admins table' do
-      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5 AND organisation_id IS NULL'
+      q = 'SELECT COUNT(*) AS count FROM SolasMatch.Admins WHERE user_id = 5 AND organisation_id IS NULL'
 
       expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
         [
@@ -195,7 +195,7 @@ describe Solas::User do
         ]
       )
 
-      q = 'SELECT COUNT(*) AS count FROM Admins WHERE user_id = 5'
+      q = 'SELECT COUNT(*) AS count FROM SolasMatch.Admins WHERE user_id = 5'
 
       expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
         [
