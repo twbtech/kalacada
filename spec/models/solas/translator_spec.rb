@@ -4,6 +4,7 @@ describe Solas::Translator do
   shared_examples_for :active_translators_count do
     before do
       conditions = [
+        'tasks_kp.claimdate IS NOT NULL',
         ("tasks_kp.langsourceid = #{source_language}" if source_language.present?),
         ("tasks_kp.langtargetid = #{target_language}" if target_language.present?)
       ].compact.join(' AND ')
@@ -14,8 +15,7 @@ describe Solas::Translator do
             SELECT
               COUNT(DISTINCT users_kp.kpid) AS count
             FROM tasks_kp
-              JOIN SolasMatch.TaskClaims ON tasks_kp.id = SolasMatch.TaskClaims.task_id
-              JOIN users_kp ON SolasMatch.TaskClaims.user_id = users_kp.kpid
+              JOIN users_kp ON tasks_kp.claimuserid = users_kp.kpid
             #{conditions}
       QUERY
       ).and_return(
@@ -42,8 +42,8 @@ describe Solas::Translator do
                     (SELECT id AS user_id, primarylangid AS language_id FROM users_kp WHERE #{users_kp_conditions}) UNION
                     (SELECT user_id, language_id FROM SolasMatch.UserSecondaryLanguages WHERE #{conditions_1})
                   ) AS ul1
-                LEFT JOIN SolasMatch.TaskClaims ON SolasMatch.TaskClaims.user_id = ul1.user_id
-                WHERE SolasMatch.TaskClaims.id IS NULL
+                LEFT JOIN tasks_kp ON tasks_kp.claimuserid = ul1.user_id
+                WHERE tasks_kp.claimdate IS NULL
           QUERY
         elsif source_language.present? && target_language.present?
           <<-QUERY
@@ -58,14 +58,14 @@ describe Solas::Translator do
                     (SELECT user_id, language_id FROM SolasMatch.UserSecondaryLanguages WHERE language_id = #{target_language})
                   ) AS ul2
                   ON ul1.user_id = ul2.user_id
-                LEFT JOIN SolasMatch.TaskClaims ON SolasMatch.TaskClaims.user_id = ul1.user_id
-                WHERE SolasMatch.TaskClaims.id IS NULL
+                LEFT JOIN tasks_kp ON tasks_kp.claimuserid = ul1.user_id
+                WHERE tasks_kp.claimdate IS NULL
           QUERY
         else
           <<-QUERY
                 SELECT COUNT(DISTINCT users_kp.kpid) AS count
-                FROM users_kp LEFT JOIN SolasMatch.TaskClaims ON SolasMatch.TaskClaims.user_id = users_kp.kpid
-                WHERE SolasMatch.TaskClaims.id IS NULL
+                FROM users_kp LEFT JOIN tasks_kp ON tasks_kp.claimuserid = users_kp.kpid
+                WHERE tasks_kp.claimdate IS NULL
           QUERY
         end
       ).and_return(
