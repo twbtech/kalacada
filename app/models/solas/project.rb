@@ -76,7 +76,7 @@ module Solas
         QUERY
 
         connection.query(q).to_a.map do |r|
-          new id:                 r['id'],
+          new id:                 r['kpid'],
               title:              r['title'],
               created_at:         r['createtime'],
               deadline:           r['task_deadline'],
