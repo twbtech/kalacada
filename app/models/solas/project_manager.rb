@@ -11,7 +11,7 @@ module Solas
         QUERY
 
         connection.query(q).to_a.map do |r|
-          new id: r['id'], name: r['name']
+          new id: r['kpid'], name: r['name']
         end
       end
     end

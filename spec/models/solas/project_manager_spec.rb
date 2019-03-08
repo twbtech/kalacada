@@ -13,8 +13,8 @@ describe Solas::ProjectManager do
         QUERY
       ).and_return(
         [
-          { 'id' => 1, 'name' => 'English' },
-          { 'id' => 2, 'name' => 'German' }
+          { 'kpid' => 1, 'name' => 'English' },
+          { 'kpid' => 2, 'name' => 'German' }
         ]
       )
 

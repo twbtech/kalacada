@@ -64,7 +64,7 @@ module Solas
             SELECT SUM(wuc.wordcount) as count FROM (
               SELECT
                 DISTINCT projects_kp.pid,
-                projects_kp.wordcount,
+                MAX(projects_kp.wordcount) AS wordcount,
                 tasks_kp.langsourceid,
                 tasks_kp.langtargetid,
                 MIN(tasks_kp.taskstatusid) AS min_status

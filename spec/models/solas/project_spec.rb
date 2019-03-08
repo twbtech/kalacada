@@ -70,7 +70,11 @@ describe Solas::Project do
           SELECT COUNT(*) AS count
           FROM (
                     SELECT
-          DISTINCT projects_kp.*,
+          DISTINCT projects_kp.pid,
+          MAX(projects_kp.title) AS title,
+          MAX(projects_kp.createtime) AS createtime,
+          MAX(projects_kp.wordcount) AS wordcount,
+          MAX(projects_kp.orgid) AS orgid,
           tasks_kp.langsourceid,
           tasks_kp.langtargetid,
           MIN(tasks_kp.taskstatusid) AS min_status,
@@ -105,7 +109,11 @@ describe Solas::Project do
         expect_any_instance_of(Solas::Connection).to receive(:query).with(
           <<-QUERY
                   SELECT
-          DISTINCT projects_kp.*,
+          DISTINCT projects_kp.pid,
+          MAX(projects_kp.title) AS title,
+          MAX(projects_kp.createtime) AS createtime,
+          MAX(projects_kp.wordcount) AS wordcount,
+          MAX(projects_kp.orgid) AS orgid,
           tasks_kp.langsourceid,
           tasks_kp.langtargetid,
           MIN(tasks_kp.taskstatusid) AS min_status,

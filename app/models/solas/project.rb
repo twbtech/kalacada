@@ -76,7 +76,7 @@ module Solas
         QUERY
 
         connection.query(q).to_a.map do |r|
-          new id:                 r['id'],
+          new id:                 r['pid'],
               title:              r['title'],
               created_at:         r['createtime'],
               deadline:           r['task_deadline'],
@@ -111,7 +111,11 @@ module Solas
 
       <<-QUERY
         SELECT
-          DISTINCT projects_kp.*,
+          DISTINCT projects_kp.pid,
+          MAX(projects_kp.title) AS title,
+          MAX(projects_kp.createtime) AS createtime,
+          MAX(projects_kp.wordcount) AS wordcount,
+          MAX(projects_kp.orgid) AS orgid,
           tasks_kp.langsourceid,
           tasks_kp.langtargetid,
           MIN(tasks_kp.taskstatusid) AS min_status,
