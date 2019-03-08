@@ -21,7 +21,7 @@ module Solas
       Rails.cache.fetch("Solas::Partner::find(#{id.to_i})", expires_in: 1.minute) do
         query do |connection|
           r = connection.query("SELECT partners_kp.* FROM partners_kp WHERE partners_kp.kpid = #{id.to_i}").first
-          new id: r['id'], name: r['name']
+          new id: r['kpid'], name: r['name']
         end
       end
     end

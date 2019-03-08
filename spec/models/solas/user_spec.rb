@@ -136,7 +136,7 @@ describe Solas::User do
 
         expect_any_instance_of(Solas::Connection).to receive(:query).with(q).and_return(
           [
-            { 'id' => 3, 'name' => 'Partner Inc.' }
+            { 'kpid' => 3, 'name' => 'Partner Inc.' }
           ]
         )
 

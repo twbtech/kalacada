@@ -29,7 +29,7 @@ describe Solas::Partner do
         'SELECT partners_kp.* FROM partners_kp WHERE partners_kp.kpid = 1'
       ).and_return(
         [
-          { 'id' => 1, 'name' => 'Partner Inc.' }
+          { 'kpid' => 1, 'name' => 'Partner Inc.' }
         ]
       )
 
