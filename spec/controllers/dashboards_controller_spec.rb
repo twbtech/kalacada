@@ -96,6 +96,10 @@ describe DashboardsController do
       allow(Solas::Task).to receive(:in_progress_count).and_return(13)
       allow(Solas::Task).to receive(:not_claimed_yet_count).and_return(14)
       allow(Solas::Task).to receive(:overdue_count).and_return(15)
+
+      allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 1000, member_name: 'package name', member_expire_date: Date.tomorrow, member_start_date: '08.10.2018')
+      allow(Solas::Package).to receive(:find_partners_name).and_return('partner name')
+      allow(Solas::Package).to receive(:count_remaining_words).and_return(500)
     end
 
     before { login(:admin) }
@@ -129,6 +133,11 @@ describe DashboardsController do
 
     describe 'XHR GET progress' do
       before { get :progress, xhr: true }
+      it_should_behave_like :dashboards_controller_xhr_with_access
+    end
+
+    describe 'XHR GET package' do
+      before { get :package, xhr: true }
       it_should_behave_like :dashboards_controller_xhr_with_access
     end
 
@@ -170,6 +179,10 @@ describe DashboardsController do
       allow(Solas::Task).to receive(:in_progress_count).and_return(13)
       allow(Solas::Task).to receive(:not_claimed_yet_count).and_return(14)
       allow(Solas::Task).to receive(:overdue_count).and_return(15)
+
+      allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 1000, member_name: 'package name', member_expire_date: Date.tomorrow, member_start_date: '08.10.2018')
+      allow(Solas::Package).to receive(:find_partners_name).and_return('partner name')
+      allow(Solas::Package).to receive(:count_remaining_words).and_return(500)
     end
 
     describe 'GET index' do
@@ -202,6 +215,11 @@ describe DashboardsController do
 
     describe 'XHR GET progress' do
       before { get :progress, xhr: true }
+      it_should_behave_like :dashboards_controller_xhr_with_access_limited_to_partner
+    end
+
+    describe 'XHR GET package' do
+      before { get :package, xhr: true }
       it_should_behave_like :dashboards_controller_xhr_with_access_limited_to_partner
     end
 
@@ -245,6 +263,11 @@ describe DashboardsController do
 
     describe 'XHR GET progress' do
       before { get :progress, xhr: true }
+      it_should_behave_like :dashboards_controller_xhr_without_access
+    end
+
+    describe 'XHR GET package' do
+      before { get :package, xhr: true }
       it_should_behave_like :dashboards_controller_xhr_without_access
     end
 

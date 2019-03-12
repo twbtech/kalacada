@@ -4,6 +4,8 @@
 = simple_form_for @filter, url: dashboards_path, remote: true, method: :get do
   .row
     .col-md-7
+      .package-warning
+
       %hr
 
       %h2 Filter Language Pair:
@@ -36,6 +38,9 @@
       %button.btn.btn-primary.top-spaced-4x.pull-right= fa_icon(:refresh, text: 'Apply all filters')
 
     .col-md-5
+      .well.package-progress.package-progress-well{ data: { lazy_load_url: package_dashboards_path } }
+        = spinner
+
       .well.results-progress{ data: { lazy_load_url: progress_dashboards_path } }
         = spinner
 

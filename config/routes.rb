@@ -5,6 +5,7 @@ Rails.application.routes.draw do
     collection do
       get :capacity
       get :progress
+      get :package
       get :projects
       get :metabase
     end

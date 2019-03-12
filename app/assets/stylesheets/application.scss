@@ -111,6 +111,23 @@ footer {
   }
 }
 
+.package-progress-well {
+  background-color: #f0d6b8;
+
+  h2 {
+    margin-top: 10px;
+  }
+
+  table {
+    margin-bottom: 10px;
+  }
+
+  .warning-text {
+    color: #c34562;
+    font-weight: bold;
+  }
+}
+
 .top-spaced-4x {
   margin-top: 60px;
 }

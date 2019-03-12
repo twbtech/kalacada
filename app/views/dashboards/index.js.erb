@@ -1,3 +1,8 @@
+var package_el = $('.package-progress');
+package_el.html('<%= j spinner %>');
+package_el.attr('data-lazy-load-url', '<%= package_dashboards_path %>');
+package_el.attr('data-lazy-load-params', '<%= @filter.to_sanitized_hash.to_query.html_safe %>');
+
 var capacity_el = $('.results-capacity');
 capacity_el.html('<%= j spinner %>');
 capacity_el.attr('data-lazy-load-url', '<%= capacity_dashboards_path(@filter.to_sanitized_hash) %>');

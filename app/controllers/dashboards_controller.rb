@@ -14,6 +14,10 @@ class DashboardsController < ApplicationController
     respond_to(&:js)
   end
 
+  def package
+    respond_to(&:js)
+  end
+
   def projects
     respond_to(&:js)
   end
@@ -37,9 +41,9 @@ class DashboardsController < ApplicationController
   before_action :check_dashboard_access
   def check_dashboard_access
     allowed_actions = if logged_in_user.try(:admin?)
-                        %w[index capacity progress projects metabase]
+                        %w[index capacity progress projects metabase package]
                       elsif logged_in_user.try(:partner?)
-                        %w[index progress projects]
+                        %w[index progress projects package]
                       else
                         []
                       end

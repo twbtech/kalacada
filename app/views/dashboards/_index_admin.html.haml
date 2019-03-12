@@ -37,6 +37,8 @@
             %label.control-label Project Manager
             = select_tag :project_manager, project_manager_options_for_select, class: 'form-control'
 
+      .package-progress{ data: { url: package_dashboards_path } }
+
       %h2 Timeframe for Projects:
 
       .row

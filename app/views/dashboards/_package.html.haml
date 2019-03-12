@@ -1,0 +1,26 @@
+.well.package-progress-well
+  - if @data.package_status
+    %h2
+      %strong Package
+    %table.table
+      %h3
+        %strong= "#{@data.package_status[:words_remaining]} words remaining"
+      %tr
+        %td= @data.package_status[:member_name]
+        %td.text-right
+          = "#{@data.package_status[:word_count_limit]} Words"
+      %tr
+        %td= 'Start date'
+        %td.text-right
+          = @data.package_status[:member_start_date].strftime('%d.%m.%Y')
+      %tr
+        %td= 'End date'
+        %td.text-right
+          = @data.package_status[:member_expire_date].strftime('%d.%m.%Y')
+
+    - if @data.package_status.show_warning
+      .warning-text= "WARNING! #{@data.package_status[:name]} has less than 10 000 words in his package."
+
+  - else
+    %h2.warning-text
+      This partner currently doesn't have any package.

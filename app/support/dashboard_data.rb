@@ -36,6 +36,10 @@ class DashboardData
     Solas::Project.projects(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date), current_page).to_a
   end
 
+  def package_status
+    @package_status ||= load_package_status
+  end
+
   private
 
   attr_reader :params
@@ -73,6 +77,25 @@ class DashboardData
       { label: 'unclaimed',   value: Solas::Task.not_claimed_yet_count(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date)) },
       { label: 'overdue',     value: Solas::Task.overdue_count(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date)) }
     ]
+  end
+
+  def load_package_status
+    if params[:partner]
+      package = Solas::Package.find_package(params[:partner])
+
+      if package.present?
+        package[:name] = Solas::Package.find_partners_name(params[:partner])
+
+        package[:words_remaining] = Solas::Package.count_remaining_words params[:partner],
+                                                                         package[:word_count_limit],
+                                                                         package[:member_start_date],
+                                                                         package[:member_expire_date]
+
+        package[:show_warning] = (package[:words_remaining] < 10_000 || package[:member_expire_date] < Time.zone.today)
+      end
+
+      package
+    end
   end
 
   def projects_pages

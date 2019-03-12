@@ -1,0 +1,6 @@
+<% if logged_in_user.try(:admin?) %>
+  $('.package-progress').html('<%= j render('dashboards/package', data: @data) %>');
+<% elsif logged_in_user.try(:partner?) %>
+  $('.package-progress').html('<%= j render('dashboards/package_partner', data: @data) %>');
+  $('.package-warning').html('<%= j render('dashboards/package_partner_warning', data: @data) %>');
+<% end %>

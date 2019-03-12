@@ -1,0 +1,22 @@
+%h2
+  %strong Package
+
+- if @data.package_status
+  %table.table
+    %h3
+      %strong= "#{@data.package_status.words_remaining} words remaining"
+    %tr
+      %td= @data.package_status.member_name
+      %td.text-right
+        = "#{@data.package_status.word_count_limit} Words"
+    %tr
+      %td Start date
+      %td.text-right
+        = @data.package_status.member_start_date.strftime('%d.%m.%Y')
+    %tr
+      %td End date
+      %td.text-right
+        = @data.package_status.member_expire_date.strftime('%d.%m.%Y')
+
+- else
+  You currently don't have any package.
