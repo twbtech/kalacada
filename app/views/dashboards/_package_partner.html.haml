@@ -1,21 +1,5 @@
 - if @data.package_status
-  %h2
-    %strong= @data.package_status.member_name
-  %table.table
-    %h3
-      %strong= "#{@data.package_status.words_remaining} words remaining"
-    %tr
-      %td Total word count
-      %td.text-right
-        = "#{@data.package_status.word_count_limit} Words"
-    %tr
-      %td Start date
-      %td.text-right
-        = @data.package_status.member_start_date.strftime('%d.%m.%Y')
-    %tr
-      %td End date
-      %td.text-right
-        = @data.package_status.member_expire_date.strftime('%d.%m.%Y')
+  = render 'dashboards/package_info', data: @data
 
 - else
   %h2
