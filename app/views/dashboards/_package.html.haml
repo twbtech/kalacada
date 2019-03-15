@@ -18,8 +18,16 @@
         %td.text-right
           = @data.package_status[:member_expire_date].strftime('%d.%m.%Y')
 
-    - if @data.package_status.show_warning
-      .warning-text= "WARNING! #{@data.package_status[:name]} has less than 10 000 words in his package."
+    - if @data.package_status.try(:show_warning)
+      - @data.package_status.show_warning.each do |warn|
+        - if warn == :no_remaining_words
+          .expired-text= "WARNING! #{@data.package_status[:name]} has no more words in package."
+        - elsif warn == :package_expired
+          .expired-text= "WARNING! #{@data.package_status[:name]}'s package has expired."
+        - elsif warn == :few_remaining_words
+          .warning-text= "WARNING! #{@data.package_status[:name]} has less than *10%* words in package."
+        - elsif warn == :month_to_expire
+          .warning-text= "WARNING! #{@data.package_status[:name]}'s package is about to expire."
 
   - else
     %h2.warning-text

@@ -35,8 +35,8 @@ describe Solas::Package do
         QUERY
       ).and_return([{ 'wordcount' => 1_000 }])
 
-      word_count = Solas::Package.count_remaining_words(49, 10_000, Date.parse('2017-01-01 00:00:00 +0100'), Date.parse('2017-12-31 00:00:00 +0100'))
-      expect(word_count).to eq 9_000
+      word_count = Solas::Package.count_remaining_words(49, 500, Date.parse('2017-01-01 00:00:00 +0100'), Date.parse('2017-12-31 00:00:00 +0100'))
+      expect(word_count).to eq 0
     end
   end
 end

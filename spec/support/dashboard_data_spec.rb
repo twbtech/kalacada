@@ -102,39 +102,88 @@ describe DashboardData do
   end
 
   describe 'package-related information' do
-    context 'remaining word count is less than 10000' do
+    start_time = 5.months.ago
+    context 'remaining word count is less than 10%' do
       before do
-        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 1000, member_name: 'package name', member_expire_date: Date.tomorrow, member_start_date: '08.10.2018')
+        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 6_000, member_name: 'package name', member_expire_date: Date.tomorrow + 2.months, member_start_date: start_time)
         allow(Solas::Package).to receive(:find_partners_name).and_return('partner name')
         allow(Solas::Package).to receive(:count_remaining_words).and_return(500)
       end
 
       it 'should have package_statuswith show_warning=true' do
-        expect(data.package_status).to eq(member_expire_date: Date.tomorrow, member_name: 'package name', member_start_date: '08.10.2018', name: 'partner name', show_warning: true, word_count_limit: 1000, words_remaining: 500)
+        expect(data.package_status).to eq(member_expire_date: Date.tomorrow + 2.months, member_name: 'package name', member_start_date: start_time, name: 'partner name', show_warning: [:few_remaining_words], word_count_limit: 6_000, words_remaining: 500)
       end
     end
 
-    context 'package is expired' do
+    context 'expired time is less then month' do
       before do
-        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 100_000, member_name: 'package name', member_expire_date: Date.yesterday, member_start_date: '08.10.2018')
+        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 6_000, member_name: 'package name', member_expire_date: Date.tomorrow + 1.month - 5.days, member_start_date: start_time)
         allow(Solas::Package).to receive(:find_partners_name).and_return('partner name')
-        allow(Solas::Package).to receive(:count_remaining_words).and_return(90_000)
+        allow(Solas::Package).to receive(:count_remaining_words).and_return(5_000)
       end
 
-      it 'should have package_status show_warning=true' do
-        expect(data.package_status).to eq(member_expire_date: Date.yesterday, member_name: 'package name', member_start_date: '08.10.2018', name: 'partner name', show_warning: true, word_count_limit: 100_000, words_remaining: 90_000)
+      it 'should have package_statuswith show_warning=true' do
+        expect(data.package_status).to eq(member_expire_date: Date.tomorrow + 1.month - 5.days, member_name: 'package name', member_start_date: start_time, name: 'partner name', show_warning: [:month_to_expire], word_count_limit: 6_000, words_remaining: 5_000)
+      end
+    end
+
+    context 'expired time is less then month and remaining word count is less than 10%' do
+      before do
+        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 6_000, member_name: 'package name', member_expire_date: Date.tomorrow + 1.month - 5.days, member_start_date: start_time)
+        allow(Solas::Package).to receive(:find_partners_name).and_return('partner name')
+        allow(Solas::Package).to receive(:count_remaining_words).and_return(500)
+      end
+
+      it 'should have package_statuswith show_warning=true' do
+        expect(data.package_status).to eq(member_expire_date: Date.tomorrow + 1.month - 5.days, member_name: 'package name', member_start_date: start_time, name: 'partner name', show_warning: [:few_remaining_words, :month_to_expire], word_count_limit: 6_000, words_remaining: 500)
+      end
+    end
+
+    context 'remaining word count is 0' do
+      before do
+        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 6_000, member_name: 'package name', member_expire_date: Date.tomorrow + 2.months, member_start_date: start_time)
+        allow(Solas::Package).to receive(:find_partners_name).and_return('partner name')
+        allow(Solas::Package).to receive(:count_remaining_words).and_return(0)
+      end
+
+      it 'should have package_statuswith show_warning=true' do
+        expect(data.package_status).to eq(member_expire_date: Date.tomorrow + 2.months, member_name: 'package name', member_start_date: start_time, name: 'partner name', show_warning: [:no_remaining_words], word_count_limit: 6_000, words_remaining: 0)
+      end
+    end
+
+    context 'time is expired' do
+      before do
+        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 6_000, member_name: 'package name', member_expire_date: Date.yesterday, member_start_date: start_time)
+        allow(Solas::Package).to receive(:find_partners_name).and_return('partner name')
+        allow(Solas::Package).to receive(:count_remaining_words).and_return(5_000)
+      end
+
+      it 'should have package_statuswith show_warning=true' do
+        expect(data.package_status).to eq(member_expire_date: Date.yesterday, member_name: 'package name', member_start_date: start_time, name: 'partner name', show_warning: [:package_expired], word_count_limit: 6_000, words_remaining: 5_000)
+      end
+    end
+
+    context 'expired time and remaining word count is 0' do
+      before do
+        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 6_000, member_name: 'package name', member_expire_date: Date.yesterday, member_start_date: start_time)
+        allow(Solas::Package).to receive(:find_partners_name).and_return('partner name')
+        allow(Solas::Package).to receive(:count_remaining_words).and_return(0)
+      end
+
+      it 'should have package_statuswith show_warning=true' do
+        expect(data.package_status).to eq(member_expire_date: Date.yesterday, member_name: 'package name', member_start_date: start_time, name: 'partner name', show_warning: [:no_remaining_words], word_count_limit: 6_000, words_remaining: 0)
       end
     end
 
     context 'remaining word count is bigger than 10000 and package is valid' do
       before do
-        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 100_000, member_name: 'package name', member_expire_date: Date.tomorrow, member_start_date: '08.10.2018')
+        allow(Solas::Package).to receive(:find_package).and_return(word_count_limit: 100_000, member_name: 'package name', member_expire_date: Date.tomorrow + 5.months, member_start_date: start_time)
         allow(Solas::Package).to receive(:find_partners_name).and_return('partner name')
         allow(Solas::Package).to receive(:count_remaining_words).and_return(90_000)
       end
 
       it 'should have package_status show_warning=false' do
-        expect(data.package_status).to eq(member_expire_date: Date.tomorrow, member_name: 'package name', member_start_date: '08.10.2018', name: 'partner name', show_warning: false, word_count_limit: 100_000, words_remaining: 90_000)
+        expect(data.package_status).to eq(member_expire_date: Date.tomorrow + 5.months, member_name: 'package name', member_start_date: start_time, name: 'partner name', show_warning: nil, word_count_limit: 100_000, words_remaining: 90_000)
       end
     end
   end

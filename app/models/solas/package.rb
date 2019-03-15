@@ -43,8 +43,7 @@ module Solas
           connection.query(q).first['wordcount'].to_i
         end
       end
-
-      max_words_count - words_count
+      [max_words_count - words_count, 0].max
     end
   end
 end

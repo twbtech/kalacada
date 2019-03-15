@@ -1,12 +1,11 @@
-%h2
-  %strong Package
-
 - if @data.package_status
+  %h2
+    %strong= @data.package_status.member_name
   %table.table
     %h3
       %strong= "#{@data.package_status.words_remaining} words remaining"
     %tr
-      %td= @data.package_status.member_name
+      %td Total word count
       %td.text-right
         = "#{@data.package_status.word_count_limit} Words"
     %tr
@@ -19,4 +18,6 @@
         = @data.package_status.member_expire_date.strftime('%d.%m.%Y')
 
 - else
+  %h2
+    %strong Package
   You currently don't have any package.

@@ -90,8 +90,21 @@ class DashboardData
                                                                          package[:word_count_limit],
                                                                          package[:member_start_date],
                                                                          package[:member_expire_date]
+        package[:show_warning] = if package[:words_remaining] <= 0
+                                   [:no_remaining_words]
 
-        package[:show_warning] = (package[:words_remaining] < 10_000 || package[:member_expire_date] < Time.zone.today)
+                                 elsif package[:member_expire_date] < Time.zone.today
+                                   [:package_expired]
+
+                                 elsif package[:words_remaining] <= package[:word_count_limit] * 0.1 && (package[:member_expire_date] + 1.day) - 1.month < Time.zone.now
+                                   [:few_remaining_words, :month_to_expire]
+
+                                 elsif package[:words_remaining] <= package[:word_count_limit] * 0.1
+                                   [:few_remaining_words]
+
+                                 elsif (package[:member_expire_date] + 1.day) - 1.month < Time.zone.now
+                                   [:month_to_expire]
+                                 end
       end
 
       package
