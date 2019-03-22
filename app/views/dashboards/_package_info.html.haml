@@ -3,11 +3,11 @@
 
 %table.table
   %h3
-    %strong= "#{data.package_status.words_remaining} words remaining"
+    = "#{format_number(data.package_status.words_remaining)} words remaining"
   %tr
     %td Total word count
     %td.text-right
-      = "#{data.package_status.word_count_limit} words"
+      = "#{format_number(data.package_status.word_count_limit)} words"
   %tr
     %td Start date
     %td.text-right

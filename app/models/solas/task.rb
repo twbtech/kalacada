@@ -34,8 +34,8 @@ module Solas
               FROM tasks_kp
                 JOIN projects_kp ON tasks_kp.project_id = projects_kp.pid
                 JOIN partners_kp ON projects_kp.orgid = partners_kp.kpid
-                LEFT JOIN SolasMatch.Admins ON SolasMatch.Admins.organisation_id = partners_kp.kpid
-                LEFT JOIN users_kp ON SolasMatch.Admins.user_id = users_kp.kpid
+                LEFT JOIN Admins ON Admins.organisation_id = partners_kp.kpid
+                LEFT JOIN users_kp ON Admins.user_id = users_kp.kpid
                 #{options[:joins]}
               #{conditions}
             ) AS wuc

@@ -7,8 +7,8 @@ describe Solas::ProjectManager do
         <<-QUERY
           SELECT DISTINCT users_kp.kpid, users_kp.name
           FROM users_kp
-            JOIN SolasMatch.Admins ON users_kp.kpid = SolasMatch.Admins.user_id
-          WHERE SolasMatch.Admins.user_id IN (SELECT user_id FROM SolasMatch.Admins WHERE organisation_id IS NULL) AND SolasMatch.Admins.organisation_id IS NOT NULL
+            JOIN Admins ON users_kp.kpid = Admins.user_id
+          WHERE Admins.user_id IN (SELECT user_id FROM Admins WHERE organisation_id IS NULL) AND Admins.organisation_id IS NOT NULL
           ORDER BY users_kp.name ASC
         QUERY
       ).and_return(

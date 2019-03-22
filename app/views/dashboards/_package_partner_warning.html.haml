@@ -2,13 +2,13 @@
   - @data.package_status.show_warning.each do |warn|
     - if warn == :no_remaining_words
       %h4.expired-text
-        %strong= "WARNING! You have no more words in your package. Please contact #{PACKAGE_CONTACT_EMAIL} to expand your word count before submitting any other documents."
+        = "WARNING! You have no more words in your package. Please contact #{PACKAGE_CONTACT_EMAIL} to expand your word count before submitting any other documents."
     - elsif warn == :package_expired
       %h4.expired-text
-        %strong= "WARNING! Your package has expired. Please contact #{PACKAGE_CONTACT_EMAIL} to renew your subscription in order to submit new documents."
+        = "WARNING! Your package has expired. Please contact #{PACKAGE_CONTACT_EMAIL} to renew your subscription in order to submit new documents."
     - elsif warn == :few_remaining_words
       %h4.warning-text
-        %strong= "WARNING! You have less than *10%* words in your package. Please contact #{PACKAGE_CONTACT_EMAIL} to expand your word count before submitting any other documents."
+        = "WARNING! You have less than *10%* words in your package. Please contact #{PACKAGE_CONTACT_EMAIL} to expand your word count before submitting any other documents."
     - elsif warn == :month_to_expire
       %h4.warning-text
-        %strong= "WARNING! Your package is about to expire. Please contact #{PACKAGE_CONTACT_EMAIL} to renew your subscription."
+        = "WARNING! Your package is about to expire. Please contact #{PACKAGE_CONTACT_EMAIL} to renew your subscription."
