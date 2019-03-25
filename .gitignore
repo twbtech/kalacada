@@ -29,3 +29,5 @@ config/solas.yml
 config/secrets.yml
 config/constants.rb
 rspec.xml
+
+lib/tasks/development.rake

@@ -132,6 +132,22 @@ footer {
   color: #c34562;
 }
 
+.top-spaced-2x {
+  margin-top: 30px;
+}
+
 .top-spaced-4x {
   margin-top: 60px;
+}
+
+.bottom-spaced-4x {
+  margin-bottom: 60px;
+}
+
+.bottom-spaced-8x {
+  margin-bottom: 120px;
+}
+
+.clearfix {
+  clear: both;
 }

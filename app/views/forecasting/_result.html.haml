@@ -1,0 +1,3 @@
+- @components.each do |component|
+  .bottom-spaced-8x.clearfix
+    = line_chart [{ name: component[:name], data: component[:data] }], colors: component[:colors], height: '400px'

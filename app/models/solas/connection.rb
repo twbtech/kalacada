@@ -51,7 +51,9 @@ module Solas
     def query_label
       index = caller.index { |c| c.match?(%r{.*/app/models/solas/base\.rb.*`query'$}) }
       method_name = caller[index - 1].scan(/block\sin\s(.*)'/).flatten.first
-      class_name  = caller[index - 1].scan(%r{models/solas/(.*)\.rb}).flatten.first.camelize
+
+      class_name   = caller[index - 1].scan(%r{models/solas/(.*)\.rb}).flatten.first.try(:camelize)
+      class_name ||= caller[index - 1].scan(%r{support/forecasting/(.*)\.rb}).flatten.first.try(:camelize)
 
       "#{class_name}::#{method_name}"
     end

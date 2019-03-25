@@ -11,6 +11,10 @@ Rails.application.routes.draw do
     end
   end
 
+  resource :forecasting, controller: :forecasting do
+    get :result
+  end
+
   match '/login', to: 'sessions#login', via: [:get, :post], as: 'login'
   get '/logout', to: 'sessions#logout', as: 'logout'
 

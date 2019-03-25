@@ -56,9 +56,4 @@ class DashboardsController < ApplicationController
     @filter = DashboardFilter.new(params.permit(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date, :page), logged_in_user)
     @data   = DashboardData.new(@filter)
   end
-
-  after_action :release_db_connection
-  def release_db_connection
-    Solas::Connection.close
-  end
 end
