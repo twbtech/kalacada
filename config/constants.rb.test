@@ -6,3 +6,4 @@ METABASE_SITE_URL     = 'http://localhost:3000'.freeze
 METABASE_SECRET_KEY   = 'metabase secret key'.freeze
 METABASE_DASHBOARD_ID = 0
 PACKAGE_CONTACT_EMAIL = 'some_email_address'.freeze
+PYTHON_ENV_COMMAND    = nil

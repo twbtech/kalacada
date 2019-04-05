@@ -16,6 +16,8 @@
 //= require jquery-ui
 //= require turbolinks
 //= require bootstrap.min
+//= require Chart.bundle
+//= require chartkick
 //= require_self
 
 function datepicker_options(options) {

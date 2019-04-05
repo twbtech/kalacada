@@ -1,0 +1,21 @@
+%h1 Forecasting results
+
+%h2 Filter Language Pair:
+
+= simple_form_for @filter, url: forecasting_path, method: :get do
+  .row
+    .col-md-6
+      .form-group
+        %label.control-label Source Language
+        = select_tag :source_lang, source_language_options_for_select(@filter.source_lang), class: 'form-control'
+
+    .col-md-6
+      .form-group
+        %label.control-label Target Language
+        = select_tag :target_lang, target_language_options_for_select(@filter.target_lang), class: 'form-control'
+
+  %button.btn.btn-primary.top-spaced-2x.bottom-spaced-4x.pull-right= 'Apply language filters'
+
+.forecast-result{ data: { lazy_load_url: result_forecasting_path(source_lang: @filter.source_lang, target_lang: @filter.target_lang) } }
+  .top-spaced-4x.text-center Forecast data is being generated, please wait...
+  .top-spaced-2x= spinner

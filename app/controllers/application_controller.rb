@@ -16,4 +16,9 @@ class ApplicationController < ActionController::Base
                           Solas::User.from_hash(session[:logged_in_user])
                         end
   end
+
+  after_action :release_db_connection
+  def release_db_connection
+    Solas::Connection.close
+  end
 end
