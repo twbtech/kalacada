@@ -32,7 +32,11 @@ module Solas
     end
 
     def admin?
-      role == :admin || SUPER_USER_IDS.include?(id)
+      role == :admin || super_user?
+    end
+
+    def super_user?
+      SUPER_USER_IDS.include?(id)
     end
 
     def partner?

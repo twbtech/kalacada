@@ -49,7 +49,7 @@ module Forecasting
     private
 
     def language_pairs
-      if Rails.env.development? && ENV['SOURCE_LANG_ID'].present? && ENV['TARGET_LANG_ID'].present?
+      if ENV['SOURCE_LANG_ID'].present? && ENV['TARGET_LANG_ID'].present?
         [
           {
             source_lang_id: ENV['SOURCE_LANG_ID'] == 'any' ? nil : ENV['SOURCE_LANG_ID'].to_i,
