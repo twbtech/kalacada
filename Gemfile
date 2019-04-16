@@ -85,3 +85,6 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'chartkick'
+gem 'ed25519'
+gem 'bcrypt_pbkdf'
+gem 'net-ssh'
