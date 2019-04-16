@@ -1,18 +1,19 @@
-.well.package-progress-well
-  - if @data.package_status
-    = render 'dashboards/package_info', data: @data
+- if @filter.partner
+  .well.package-progress-well
+    - if @data.package_status
+      = render 'dashboards/package_info', data: @data
 
-    - if @data.package_status.try(:show_warning)
-      - @data.package_status.show_warning.each do |warn|
-        - if warn == :no_remaining_words
-          .expired-text= "WARNING! #{@data.package_status.name} has no more words in package."
-        - elsif warn == :package_expired
-          .expired-text= "WARNING! #{@data.package_status.name}'s package has expired."
-        - elsif warn == :few_remaining_words
-          .warning-text= "WARNING! #{@data.package_status.name} has less than *10%* words in package."
-        - elsif warn == :month_to_expire
-          .warning-text= "WARNING! #{@data.package_status.name}'s package is about to expire."
+      - if @data.package_status.try(:show_warning)
+        - @data.package_status.show_warning.each do |warn|
+          - if warn == :no_remaining_words
+            .expired-text= "WARNING! #{@data.package_status.name} has no more words in package."
+          - elsif warn == :package_expired
+            .expired-text= "WARNING! #{@data.package_status.name}'s package has expired."
+          - elsif warn == :few_remaining_words
+            .warning-text= "WARNING! #{@data.package_status.name} has less than *10%* words in package."
+          - elsif warn == :month_to_expire
+            .warning-text= "WARNING! #{@data.package_status.name}'s package is about to expire."
 
-  - else
-    %h4.warning-text
-      This partner currently doesn't have any package.
+    - else
+      %h4.warning-text
+        This partner currently doesn't have any package.
