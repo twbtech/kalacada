@@ -14,9 +14,9 @@ module Forecasting
           [:full, :reduced].each do |training_type|
             suffix = "#{suffix}#{'_reduced_training' if training_type == :reduced}"
 
-            historical_data_file_path = Rails.root.join('tmp', "historical_task_count_#{suffix}.json")
-            forecast_dates_file_path  = Rails.root.join('tmp', "forecast_dates_task_count_#{suffix}.json")
-            forecast_data_file_path   = Rails.root.join('tmp', "forecast_task_count_#{suffix}.json")
+            historical_data_file_path = Rails.root.join('data', "historical_task_count_#{suffix}.json")
+            forecast_dates_file_path  = Rails.root.join('data', "forecast_dates_task_count_#{suffix}.json")
+            forecast_data_file_path   = Rails.root.join('data', "forecast_task_count_#{suffix}.json")
 
             prepare_input_data source_lang_id:            lang_pair[:source_lang_id],
                                target_lang_id:            lang_pair[:target_lang_id],

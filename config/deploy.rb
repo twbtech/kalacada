@@ -36,6 +36,7 @@ namespace :deploy do
     run "ln -s #{shared_path}/config/database.yml #{latest_release}/config/database.yml"
     run "ln -s #{shared_path}/config/solas.yml #{latest_release}/config/solas.yml"
     run "ln -s #{shared_path}/config/secrets.yml #{latest_release}/config/secrets.yml"
+    run "ln -s #{shared_path}/data #{latest_release}/data"
   end
 
   task :migrate do

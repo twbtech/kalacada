@@ -9,11 +9,11 @@ class ForecastingController < ApplicationController
         suffix = "#{what}_#{time_interval}_#{params[:source_lang]}_#{params[:target_lang]}"
 
         file_name       = "forecast_#{suffix}.json"
-        file_path       = Rails.root.join('tmp', file_name)
+        file_path       = Rails.root.join('data', file_name)
         forecast_result = File.exists?(file_path) ? JSON.parse(File.read(file_path)) : []
 
         file_name       = "historical_#{suffix}.json"
-        file_path       = Rails.root.join('tmp', file_name)
+        file_path       = Rails.root.join('data', file_name)
         historical_data = File.exists?(file_path) ? JSON.parse(File.read(file_path)) : []
 
         # add forecast data to historical data
@@ -21,11 +21,11 @@ class ForecastingController < ApplicationController
 
         # reduced training
         file_name                        = "forecast_#{suffix}_reduced_training.json"
-        file_path                        = Rails.root.join('tmp', file_name)
+        file_path                        = Rails.root.join('data', file_name)
         forecast_result_reduced_training = File.exists?(file_path) ? JSON.parse(File.read(file_path)) : []
 
         file_name                        = "historical_#{suffix}_reduced_training.json"
-        file_path                        = Rails.root.join('tmp', file_name)
+        file_path                        = Rails.root.join('data', file_name)
         historical_data_reduced_training = File.exists?(file_path) ? JSON.parse(File.read(file_path)) : []
 
         # add forecast data to historical data
