@@ -1,5 +1,5 @@
 <% if logged_in_user.try(:admin?) %>
-  $('.package-progress').html('<%= j render('dashboards/packages', data: @data) %>');
+  $('.package-progress').html('<%= j render('dashboards/packages_internal', data: @data) %>');
 <% elsif logged_in_user.try(:partner?) %>
   $('.package-progress').html('<%= j render('dashboards/package_partner', data: @data) %>');
   $('.package-warning').html('<%= j render('dashboards/package_partner_warning', data: @data) %>');

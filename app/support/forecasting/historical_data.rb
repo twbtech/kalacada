@@ -5,7 +5,7 @@ module Forecasting
     def self.monthly_task_count(source_lang = nil, target_lang = nil)
       months_in_years(START_YEAR).map do |time_period|
         task_count_for_time_period(time_period, :created_time, source_lang, target_lang) do |task_count|
-          { year: time_period[:from].year, period_number: time_period[:from].month, value: task_count }
+          { year: time_period[:from].year, period_number: time_period[:from].month, value: task_count.to_i }
         end
       end.compact
     end
@@ -36,7 +36,7 @@ module Forecasting
     def self.monthly_word_count(source_lang = nil, target_lang = nil)
       months_in_years(START_YEAR).map do |time_period|
         word_count_for_time_period(time_period, :created_time, source_lang, target_lang) do |word_count|
-          { year: time_period[:from].year, period_number: time_period[:from].month, value: word_count }
+          { year: time_period[:from].year, period_number: time_period[:from].month, value: word_count.to_i }
         end
       end.compact
     end

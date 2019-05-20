@@ -13,7 +13,7 @@ module Forecasting
           suffix = "#{time_interval}_#{lang_pair[:source_lang_id]}_#{lang_pair[:target_lang_id]}"
 
           [:full].each do |training_type|
-            [:task_count, :word_count].each do |data_type|
+            [:word_count, :task_count].each do |data_type|
               suffix = "#{suffix}#{'_reduced_training' if training_type == :reduced}"
 
               historical_data_file_path = Rails.root.join('data', "historical_#{data_type}_#{suffix}.json")
@@ -61,7 +61,7 @@ module Forecasting
           }
         ]
       else
-        Solas::Language.most_translated_pairs(MOST_TRANSLATED_LANGUAGE_PAIRS_COUNT).map do |language_pair|
+        [{}] + Solas::Language.most_translated_pairs(MOST_TRANSLATED_LANGUAGE_PAIRS_COUNT).map do |language_pair|
           language_pair.slice(:source_lang_id, :target_lang_id)
         end
       end
@@ -101,7 +101,7 @@ module Forecasting
                         {
                           year:          forecast_data['year'][i.to_s],
                           period_number: forecast_data['period_number'][i.to_s],
-                          value:         forecast_data['value'][i.to_s]
+                          value:         forecast_data['value'][i.to_s].to_i
                         }
                       end
 

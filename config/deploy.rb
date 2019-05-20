@@ -18,6 +18,9 @@ role :web, ENV['KATO_ANALYTICS_HOST'] # Your HTTP server, Apache/etc
 role :app, ENV['KATO_ANALYTICS_HOST'] # This may be the same as your `Web` server
 role :db,  ENV['KATO_ANALYTICS_HOST'], primary: true # This is where Rails migrations will run
 
+set :whenever_command, "#{load_rvm} && bundle install && bundle exec whenever"
+require "whenever/capistrano"
+
 namespace :deploy do
   task :start do
     run "sudo /bin/bash -c '#{load_rvm} && god start #{application}'"

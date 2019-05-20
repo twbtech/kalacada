@@ -8,8 +8,8 @@ module Solas
           result.map do |r|
             words_remaining = count_remaining_words partner_kp_id,
                                                     r['wordcountlimit'],
-                                                    Date.parse(r['membrstartdate']),
-                                                    Date.parse(r['membrexpiredate'])
+                                                    r['membrstartdate'],
+                                                    r['membrexpiredate']
 
             new partner_division_name: r['organization'],
                 word_count_limit:      r['wordcountlimit'],
@@ -23,13 +23,13 @@ module Solas
       end
     end
 
-    def self.count_remaining_words(partner_kp_id, max_words_count, start_date, expired_date)
-      cache_key = "Solas::Package::count_remaining_words_#{partner_kp_id}_#{start_date}_#{expired_date}"
+    def self.count_remaining_words(partner_kp_id, max_words_count, start_date, expiration_date)
+      cache_key = "Solas::Package::count_remaining_words_#{partner_kp_id}_#{start_date}_#{expiration_date}"
 
       words_count = Rails.cache.fetch(cache_key, expires_in: 1.minute) do
         query do |connection|
           from = start_date.at_beginning_of_day.to_s(:db)
-          to   = expired_date.at_end_of_day.to_s(:db)
+          to   = expiration_date.at_end_of_day.to_s(:db)
 
           q = <<-QUERY
             SELECT SUM(tasks_kp.wordcount) AS wordcount

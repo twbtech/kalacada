@@ -88,3 +88,4 @@ gem 'chartkick'
 gem 'ed25519'
 gem 'bcrypt_pbkdf'
 gem 'net-ssh'
+gem 'whenever', require: false

@@ -1,5 +1,5 @@
-- if @data.package_status
-  = render 'dashboards/package_details', data: @data
+- if @data.packages.present?
+  = render 'dashboards/packages', data: @data
 
 - else
   %h2
