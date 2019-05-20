@@ -1,6 +1,7 @@
 module Forecasting
   class Generator
-    TIME_INTERVALS = { monthly: 12, weekly: 52 }.freeze
+    TIME_INTERVALS = { monthly: 12 }.freeze
+    MOST_TRANSLATED_LANGUAGE_PAIRS_COUNT = 20
 
     def self.generate
       new.generate
@@ -11,36 +12,39 @@ module Forecasting
         TIME_INTERVALS.each do |time_interval, periods_in_a_year|
           suffix = "#{time_interval}_#{lang_pair[:source_lang_id]}_#{lang_pair[:target_lang_id]}"
 
-          [:full, :reduced].each do |training_type|
-            suffix = "#{suffix}#{'_reduced_training' if training_type == :reduced}"
+          [:full].each do |training_type|
+            [:task_count, :word_count].each do |data_type|
+              suffix = "#{suffix}#{'_reduced_training' if training_type == :reduced}"
 
-            historical_data_file_path = Rails.root.join('data', "historical_task_count_#{suffix}.json")
-            forecast_dates_file_path  = Rails.root.join('data', "forecast_dates_task_count_#{suffix}.json")
-            forecast_data_file_path   = Rails.root.join('data', "forecast_task_count_#{suffix}.json")
+              historical_data_file_path = Rails.root.join('data', "historical_#{data_type}_#{suffix}.json")
+              forecast_dates_file_path  = Rails.root.join('data', "forecast_dates_#{data_type}_#{suffix}.json")
+              forecast_data_file_path   = Rails.root.join('data', "forecast_#{data_type}_#{suffix}.json")
 
-            prepare_input_data source_lang_id:            lang_pair[:source_lang_id],
-                               target_lang_id:            lang_pair[:target_lang_id],
-                               historical_data_file_path: historical_data_file_path,
-                               forecast_dates_file_path:  forecast_dates_file_path,
-                               time_interval:             time_interval,
-                               training_type:             training_type
+              prepare_input_data source_lang_id:            lang_pair[:source_lang_id],
+                                 target_lang_id:            lang_pair[:target_lang_id],
+                                 historical_data_file_path: historical_data_file_path,
+                                 forecast_dates_file_path:  forecast_dates_file_path,
+                                 time_interval:             time_interval,
+                                 training_type:             training_type,
+                                 data_type:                 data_type
 
 
-            env_vars = [
-              "HISTORICAL_DATA_PATH=#{historical_data_file_path}",
-              "DATES_TO_FORECAST_PATH=#{forecast_dates_file_path}",
-              "FORECAST_PATH=#{forecast_data_file_path}",
-              "TIME_PERIODS_IN_A_YEAR=#{periods_in_a_year}"
-            ].join(' ')
+              env_vars = [
+                "HISTORICAL_DATA_PATH=#{historical_data_file_path}",
+                "DATES_TO_FORECAST_PATH=#{forecast_dates_file_path}",
+                "FORECAST_PATH=#{forecast_data_file_path}",
+                "TIME_PERIODS_IN_A_YEAR=#{periods_in_a_year}"
+              ].join(' ')
 
-            command = [
-              PYTHON_ENV_COMMAND,
-              "#{env_vars} python #{Rails.root.join('app', 'forecasting', 'dnn.py')}"
-            ].select(&:present?).join(' && ')
+              command = [
+                PYTHON_ENV_COMMAND,
+                "#{env_vars} python #{Rails.root.join('app', 'forecasting', 'dnn.py')}"
+              ].select(&:present?).join(' && ')
 
-            system(command)
+              system(command)
 
-            post_process_output_data(forecast_data_file_path: forecast_data_file_path)
+              post_process_output_data(forecast_data_file_path: forecast_data_file_path)
+            end
           end
         end
       end
@@ -57,11 +61,9 @@ module Forecasting
           }
         ]
       else
-        Solas::Language.source_languages.map(&:id).map do |source_lang_id|
-          Solas::Language.target_languages.map(&:id).map do |target_lang_id|
-            { source_lang_id: source_lang_id, target_lang_id: target_lang_id } if source_lang_id != target_lang_id
-          end
-        end.flatten.compact
+        Solas::Language.most_translated_pairs(MOST_TRANSLATED_LANGUAGE_PAIRS_COUNT).map do |language_pair|
+          language_pair.slice(:source_lang_id, :target_lang_id)
+        end
       end
     end
 
@@ -70,7 +72,7 @@ module Forecasting
       raise 'Path to a file with dates to forecast was not provided' if options[:forecast_dates_file_path].blank?
       raise "Unsupported time interval: #{options[:time_interval]}" unless TIME_INTERVALS.keys.include?(options[:time_interval])
 
-      historical_data = Forecasting::HistoricalData.send "#{options[:time_interval]}_task_count",
+      historical_data = Forecasting::HistoricalData.send "#{options[:time_interval]}_#{options[:data_type]}",
                                                          options[:source_lang_id],
                                                          options[:target_lang_id]
 

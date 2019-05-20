@@ -122,6 +122,13 @@ footer {
     margin-bottom: 10px;
   }
 
+  .package-details {
+    margin-top: 40px;
+
+    &:first-of-type {
+      margin-top: 0;
+    }
+  }
 }
 
 .warning-text {

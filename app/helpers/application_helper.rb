@@ -9,6 +9,15 @@ module ApplicationHelper
     options_for_select(languages, selected_id)
   end
 
+  def most_translated_language_pair_options_for_select(selected_ids = nil)
+    language_pairs = Solas::Language.most_translated_pairs(Forecasting::Generator::MOST_TRANSLATED_LANGUAGE_PAIRS_COUNT).map do |p|
+      ["#{p[:source_lang_name]} - #{p[:target_lang_name]}", "#{p[:source_lang_id]}_#{p[:target_lang_id]}"]
+    end
+
+    options = [['Any languages', nil]] + language_pairs
+    options_for_select(options, selected_ids)
+  end
+
   def partner_options_for_select
     partners = [['Any partner', nil]] + Solas::Partner.all.map { |p| [p.name, p.id] }
     options_for_select(partners)

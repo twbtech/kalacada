@@ -1,24 +1,24 @@
 module Solas
   class Package < Base
-    def self.find_package(partner_kp_id)
+    def self.find_packages(partner_kp_id)
       Rails.cache.fetch("Solas::Package::find_package_#{partner_kp_id}", expires_in: 1.minute) do
         query do |connection|
-          result = connection.query("SELECT * FROM partners_neon JOIN partners_kp ON partners_neon.neonid = partners_kp.neonid WHERE kpid = #{partner_kp_id.to_i}").first
+          result = connection.query("SELECT * FROM partners_neon JOIN partners_kp ON partners_neon.neonid = partners_kp.neonid WHERE kpid = #{partner_kp_id.to_i}").to_a
 
-          if result
-            new word_count_limit:   result['wordcountlimit'],
-                member_name:        result['membrname'],
-                member_expire_date: result['membrexpiredate'],
-                member_start_date:  result['membrstartdate']
+          result.map do |r|
+            words_remaining = count_remaining_words partner_kp_id,
+                                                    r['wordcountlimit'],
+                                                    Date.parse(r['membrstartdate']),
+                                                    Date.parse(r['membrexpiredate'])
+
+            new partner_division_name: r['organization'],
+                word_count_limit:      r['wordcountlimit'],
+                membership_name:       r['membrname'],
+                member_start_date:     r['membrstartdate'],
+                member_expire_date:    r['membrexpiredate'],
+                partner_name:          r['partners_neon.name'],
+                words_remaining:       words_remaining
           end
-        end
-      end
-    end
-
-    def self.find_partners_name(partner_kp_id)
-      Rails.cache.fetch("Solas::Package::find_partners_name_#{partner_kp_id}", expires_in: 1.minute) do
-        query do |connection|
-          connection.query("SELECT name FROM partners_kp WHERE kpid = #{partner_kp_id.to_i}").first.try(:[], 'name')
         end
       end
     end
@@ -43,6 +43,7 @@ module Solas
           connection.query(q).first['wordcount'].to_i
         end
       end
+
       [max_words_count - words_count, 0].max
     end
   end

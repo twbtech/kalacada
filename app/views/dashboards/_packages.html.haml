@@ -1,0 +1,20 @@
+- if @filter.partner
+  .well.package-progress-well
+    - if @data.packages.present?
+      - @data.packages.each do |package|
+        .package-details
+          = render 'dashboards/package_details', package: package
+
+          - package.warnings.each do |warning|
+            - if warning == :no_remaining_words
+              .expired-text= "WARNING! #{package.partner_division_name} has no more words in package."
+            - elsif warning == :package_expired
+              .expired-text= "WARNING! #{package.partner_division_name}'s package has expired."
+            - elsif warning == :few_remaining_words
+              .warning-text= "WARNING! #{package.partner_division_name} has less than *10%* words in package."
+            - elsif warning == :month_to_expire
+              .warning-text= "WARNING! #{package.partner_division_name}'s package is about to expire."
+
+    - else
+      %h4.warning-text
+        This partner currently doesn't have any package.

@@ -42,3 +42,7 @@ en:
       pending_claim: Pending Claim
       in_progress: In Progress
       complete: Complete
+
+  forecasting:
+    task_count_monthly_historical: Number of tasks per month with forecast
+    word_count_monthly_historical: Number of words per month with forecast

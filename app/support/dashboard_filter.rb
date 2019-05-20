@@ -20,6 +20,8 @@ class DashboardFilter
       instance_variable_set "@#{attr}", (Date.parse(params[attr]) if params[attr].present?)
     end
 
+    @source_lang, @target_lang = params[:language_pair].to_s.split('_').map(&:to_i) if params[:language_pair].present?
+
     if logged_in_user.partner?
       @partner         = logged_in_user.partner_organization.id
       @project_manager = nil
@@ -28,5 +30,9 @@ class DashboardFilter
 
   def to_sanitized_hash
     Hash[*ATTRS.map { |attr| [attr, send(attr)] }.flatten]
+  end
+
+  def language_pair
+    [@source_lang, @target_lang].join('_') if @source_lang && @target_lang
   end
 end

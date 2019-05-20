@@ -1,0 +1,21 @@
+%h2
+  %strong= package.partner_division_name
+
+%h3
+  %strong= package.membership_name
+
+%table.table
+  %h3
+    = "#{format_number(package.words_remaining)} words remaining"
+  %tr
+    %td Total word count
+    %td.text-right
+      = "#{format_number(package.word_count_limit)} words"
+  %tr
+    %td Start date
+    %td.text-right
+      = package.member_start_date.try(:strftime, '%d.%m.%Y')
+  %tr
+    %td End date
+    %td.text-right
+      = package.member_expire_date.try(:strftime, '%d.%m.%Y')

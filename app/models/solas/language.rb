@@ -69,5 +69,29 @@ module Solas
         end
       end
     end
+
+    def self.most_translated_pairs(count)
+      query do |connection|
+        q = <<-QUERY
+          SELECT DISTINCT tasks_kp.langsourceid, l1.`en-name` AS source_language_name, tasks_kp.langtargetid, l2.`en-name` AS target_language_name, SUM(tasks_kp.wordcount) AS wordcount
+            FROM tasks_kp
+            JOIN Languages AS l1 ON l1.id = tasks_kp.langsourceid
+            JOIN Languages AS l2 ON l2.id = tasks_kp.langtargetid
+          GROUP BY tasks_kp.langsourceid, tasks_kp.langtargetid
+          ORDER BY wordcount DESC
+          LIMIT #{count.to_i}
+        QUERY
+
+        connection.query(q).to_a.map do |r|
+          {
+            source_lang_id:   r['langsourceid'],
+            source_lang_name: r['source_language_name'],
+            target_lang_id:   r['langtargetid'],
+            target_lang_name: r['target_language_name'],
+            word_count:       r['wordcount']
+          }
+        end.sort_by { |lp| "#{lp[:source_lang_name]}_#{lp[:target_lang_name]}" }
+      end
+    end
   end
 end

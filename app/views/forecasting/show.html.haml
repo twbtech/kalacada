@@ -4,15 +4,10 @@
 
 = simple_form_for @filter, url: forecasting_path, method: :get do
   .row
-    .col-md-6
+    .col-md-12
       .form-group
-        %label.control-label Source Language
-        = select_tag :source_lang, source_language_options_for_select(@filter.source_lang), class: 'form-control'
-
-    .col-md-6
-      .form-group
-        %label.control-label Target Language
-        = select_tag :target_lang, target_language_options_for_select(@filter.target_lang), class: 'form-control'
+        %label.control-label Language pair
+        = select_tag :language_pair, most_translated_language_pair_options_for_select(@filter.language_pair), class: 'form-control'
 
   %button.btn.btn-primary.top-spaced-2x.bottom-spaced-4x.pull-right= 'Apply language filters'
 

@@ -25,9 +25,9 @@ def prepare_input(data):
 
 train_data = pd.read_json(os.environ['HISTORICAL_DATA_PATH'])
 
-from keras.models import Sequential
-from keras.layers import Dense, Activation
-import keras
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Activation
+import tensorflow.keras as keras
 
 x_train = prepare_input(train_data)
 y_train = train_data[['value']]

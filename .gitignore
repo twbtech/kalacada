@@ -31,3 +31,4 @@ config/constants.rb
 rspec.xml
 
 lib/tasks/development.rake
+data/

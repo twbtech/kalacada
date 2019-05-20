@@ -12,7 +12,7 @@ module Solas
 
           connection.query(q).to_a.map do |r|
             new id: r['kpid'], name: r['name']
-          end
+          end.uniq(&:id)
         end
       end
     end

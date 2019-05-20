@@ -36,8 +36,8 @@ class DashboardData
     Solas::Project.projects(params.slice(:source_lang, :target_lang, :partner, :project_manager, :from_date, :to_date), current_page).to_a
   end
 
-  def package_status
-    @package_status ||= load_package_status
+  def packages
+    @packages ||= load_packages
   end
 
   private
@@ -79,35 +79,27 @@ class DashboardData
     ]
   end
 
-  def load_package_status
+  def load_packages
     if params[:partner]
-      package = Solas::Package.find_package(params[:partner])
+      packages = Solas::Package.find_packages(params[:partner])
 
-      if package.present?
-        package[:name] = Solas::Package.find_partners_name(params[:partner])
-
-        package[:words_remaining] = Solas::Package.count_remaining_words params[:partner],
-                                                                         package[:word_count_limit],
-                                                                         package[:member_start_date],
-                                                                         package[:member_expire_date]
-        package[:show_warning] = if package[:words_remaining] <= 0
-                                   [:no_remaining_words]
-
-                                 elsif package[:member_expire_date] < Time.zone.today
-                                   [:package_expired]
-
-                                 elsif package[:words_remaining] <= package[:word_count_limit] * 0.1 && (package[:member_expire_date] + 1.day) - 1.month < Time.zone.now
-                                   [:few_remaining_words, :month_to_expire]
-
-                                 elsif package[:words_remaining] <= package[:word_count_limit] * 0.1
-                                   [:few_remaining_words]
-
-                                 elsif (package[:member_expire_date] + 1.day) - 1.month < Time.zone.now
-                                   [:month_to_expire]
-                                 end
+      packages.each do |package|
+        package[:warnings] = if package[:words_remaining] <= 0
+                               [:no_remaining_words]
+                             elsif package[:member_expire_date] < Time.zone.today
+                               [:package_expired]
+                             elsif package[:words_remaining] <= package[:word_count_limit] * 0.1 && (package[:member_expire_date] + 1.day) - 1.month < Time.zone.now
+                               [:few_remaining_words, :month_to_expire]
+                             elsif package[:words_remaining] <= package[:word_count_limit] * 0.1
+                               [:few_remaining_words]
+                             elsif (package[:member_expire_date] + 1.day) - 1.month < Time.zone.now
+                               [:month_to_expire]
+                             else
+                               []
+                             end
       end
 
-      package
+      packages
     end
   end
 
