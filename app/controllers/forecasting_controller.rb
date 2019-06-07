@@ -10,11 +10,11 @@ class ForecastingController < ApplicationController
 
         file_name       = "forecast_#{suffix}.json"
         file_path       = Rails.root.join('data', file_name)
-        forecast_result = File.exists?(file_path) ? JSON.parse(File.read(file_path)) : []
+        forecast_result = File.exist?(file_path) ? JSON.parse(File.read(file_path)) : []
 
         file_name       = "historical_#{suffix}.json"
         file_path       = Rails.root.join('data', file_name)
-        historical_data = File.exists?(file_path) ? JSON.parse(File.read(file_path)) : []
+        historical_data = File.exist?(file_path) ? JSON.parse(File.read(file_path)) : []
 
         # add forecast data to historical data
         historical_data += forecast_result[historical_data.length..-1]

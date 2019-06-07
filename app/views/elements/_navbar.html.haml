@@ -20,9 +20,7 @@
 
       - if logged_in_user.try(:admin?)
         %li{ class: ('active' if params[:action] == 'metabase') }= link_to 'Metabase', metabase_dashboards_path
-
-        - if logged_in_user.super_user?
-          %li{ class: ('active' if params[:controller] == 'forecasting') }= link_to 'Forecasting', forecasting_path
+        %li{ class: ('active' if params[:controller] == 'forecasting') }= link_to 'Forecasting', forecasting_path
 
 
     - if logged_in_user

@@ -2,6 +2,7 @@ AllCops:
   Exclude:
     - bin/*
     - config/deploy.rb
+    - config/constants.rb
     - db/schema.rb
     - vendor/**/*
 
@@ -40,6 +41,9 @@ Metrics/PerceivedComplexity:
 
 Naming/VariableNumber:
   EnforcedStyle: snake_case
+
+Performance/TimesMap:
+  Enabled: false
 
 Rails:
   Enabled: true

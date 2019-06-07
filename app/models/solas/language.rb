@@ -82,7 +82,7 @@ module Solas
           LIMIT #{count.to_i}
         QUERY
 
-        connection.query(q).to_a.map do |r|
+        result = connection.query(q).to_a.map do |r|
           {
             source_lang_id:   r['langsourceid'],
             source_lang_name: r['source_language_name'],
@@ -90,7 +90,9 @@ module Solas
             target_lang_name: r['target_language_name'],
             word_count:       r['wordcount']
           }
-        end.sort_by { |lp| "#{lp[:source_lang_name]}_#{lp[:target_lang_name]}" }
+        end
+
+        result.sort_by { |lp| "#{lp[:source_lang_name]}_#{lp[:target_lang_name]}" }
       end
     end
   end

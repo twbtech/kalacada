@@ -70,9 +70,9 @@ module Forecasting
       years.map do |year|
         (1..12).map do |month|
           from = Time.new(year, month, 1, 12).utc.at_beginning_of_month
-          { from: from, to: from.at_end_of_month }
+          { from: from, to: from.at_end_of_month } if from < Time.current.at_beginning_of_month
         end
-      end.flatten
+      end.flatten.compact
     end
 
     def self.weeks_in_years(since_year)

@@ -28,7 +28,6 @@ module Forecasting
                                  training_type:             training_type,
                                  data_type:                 data_type
 
-
               env_vars = [
                 "HISTORICAL_DATA_PATH=#{historical_data_file_path}",
                 "DATES_TO_FORECAST_PATH=#{forecast_dates_file_path}",
@@ -56,8 +55,8 @@ module Forecasting
       if ENV['SOURCE_LANG_ID'].present? && ENV['TARGET_LANG_ID'].present?
         [
           {
-            source_lang_id: ENV['SOURCE_LANG_ID'] == 'any' ? nil : ENV['SOURCE_LANG_ID'].to_i,
-            target_lang_id: ENV['TARGET_LANG_ID'] == 'any' ? nil : ENV['TARGET_LANG_ID'].to_i
+            source_lang_id: (ENV['SOURCE_LANG_ID'] == 'any') ? nil : ENV['SOURCE_LANG_ID'].to_i,
+            target_lang_id: (ENV['TARGET_LANG_ID'] == 'any') ? nil : ENV['TARGET_LANG_ID'].to_i
           }
         ]
       else
@@ -70,7 +69,7 @@ module Forecasting
     def prepare_input_data(options)
       raise 'Path to a file with historical datawas not provided' if options[:historical_data_file_path].blank?
       raise 'Path to a file with dates to forecast was not provided' if options[:forecast_dates_file_path].blank?
-      raise "Unsupported time interval: #{options[:time_interval]}" unless TIME_INTERVALS.keys.include?(options[:time_interval])
+      raise "Unsupported time interval: #{options[:time_interval]}" unless TIME_INTERVALS.key?(options[:time_interval])
 
       historical_data = Forecasting::HistoricalData.send "#{options[:time_interval]}_#{options[:data_type]}",
                                                          options[:source_lang_id],
@@ -87,7 +86,7 @@ module Forecasting
 
       forecast_dates  = historical_data.map { |h| h.slice(:year, :period_number) }
       latest_year     = forecast_dates.last[:year]
-      forecast_dates += (forecast_dates.last[:period_number]+1..periods_in_year).map { |month| { year: latest_year, period_number: month } }
+      forecast_dates += ((forecast_dates.last[:period_number] + 1)..periods_in_year).map { |month| { year: latest_year, period_number: month } }
 
       File.write(options[:forecast_dates_file_path], forecast_dates.to_json)
     end
@@ -98,12 +97,12 @@ module Forecasting
       forecast_data = JSON.parse(File.read(options[:forecast_data_file_path]))
 
       forecast_data = forecast_data['year'].count.times.map do |i|
-                        {
-                          year:          forecast_data['year'][i.to_s],
-                          period_number: forecast_data['period_number'][i.to_s],
-                          value:         forecast_data['value'][i.to_s].to_i
-                        }
-                      end
+        {
+          year:          forecast_data['year'][i.to_s],
+          period_number: forecast_data['period_number'][i.to_s],
+          value:         forecast_data['value'][i.to_s].to_i
+        }
+      end
 
       File.write(options[:forecast_data_file_path], forecast_data.to_json)
     end
