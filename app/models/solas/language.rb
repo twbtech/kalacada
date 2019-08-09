@@ -95,5 +95,19 @@ module Solas
         result.sort_by { |lp| "#{lp[:source_lang_name]}_#{lp[:target_lang_name]}" }
       end
     end
+
+    def self.find(id)
+      query do |connection|
+        q = <<-QUERY
+          SELECT Languages.*
+          FROM Languages
+          WHERE Languages.id = #{id.to_i}
+        QUERY
+
+        connection.query(q).to_a.map do |r|
+          new id: r['id'], name: r['en-name']
+        end.first
+      end
+    end
   end
 end

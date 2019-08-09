@@ -3,7 +3,7 @@ require 'spec_helper'
 describe Solas::Package do
   describe 'self.find_packages' do
     it 'should execute correct SQL statement and return correct partner objects' do
-      expect_any_instance_of(Solas::Connection).to receive(:query).with('SELECT * FROM partners_neon JOIN partners_kp ON partners_neon.neonid = partners_kp.neonid WHERE kpid = 49').and_return([{ 'wordcountlimit' => 10_000, 'membrname' => 'mem name', 'membrexpiredate' => Time.parse('2017-12-31'), 'membrstartdate' => Time.parse('2017-01-01') }])
+      expect_any_instance_of(Solas::Connection).to receive(:query).with('SELECT * FROM partners_neon JOIN partners_kp ON partners_neon.neonid = partners_kp.neonid WHERE kpid = 49').and_return([{ 'organization' => 'something', 'wordcountlimit' => 10_000, 'membrname' => 'mem name', 'membrexpiredate' => Time.parse('2017-12-31 00:00:00 +0000').utc, 'membrstartdate' => Time.parse('2017-01-01 00:00:00 +0000').utc }])
 
       q = <<-QUERY
             SELECT SUM(tasks_kp.wordcount) AS wordcount
@@ -23,9 +23,9 @@ describe Solas::Package do
       expect(package[:partner_division_name]).to eq 'something'
       expect(package[:word_count_limit]).to eq      10_000
       expect(package[:membership_name]).to eq       'mem name'
-      expect(package[:member_start_date]).to eq     Time.parse('2017-01-31')
-      expect(package[:member_expire_date]).to eq    Time.parse('2017-12-01')
-      expect(package[:words_remaining]).to eq       123
+      expect(package[:member_start_date]).to eq     Time.parse('2017-01-01 00:00:00 +0000').utc
+      expect(package[:member_expire_date]).to eq    Time.parse('2017-12-31 00:00:00 +0000').utc
+      expect(package[:words_remaining]).to eq       9877
     end
   end
 

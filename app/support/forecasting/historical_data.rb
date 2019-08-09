@@ -12,23 +12,26 @@ module Forecasting
 
     def self.task_count_for_time_period(time_period, filter_type, source_lang = nil, target_lang = nil)
       conditions = if filter_type == :created_time
-                     "createdtime >= '#{time_period[:from]}' AND createdtime <= '#{time_period[:to]}'"
+                     "createdate >= '#{time_period[:from].to_s(:db)}' AND createdate <= '#{time_period[:to].to_s(:db)}'"
                    elsif filter_type == :created_until_end_time
-                     "createdtime <= '#{time_period[:to]}' AND enddate >= '#{time_period[:from]}'"
+                     "createdate <= '#{time_period[:to].to_s(:db)}' AND enddate >= '#{time_period[:from].to_s(:db)}'"
                    else
                      raise "Unsupported filter type: #{filter_type}"
                    end
 
-      lang = if source_lang.present? && target_lang.present?
-               "langsourceid = #{source_lang} AND langtargetid = #{target_lang} AND"
-             elsif source_lang.present?
-               "langsourceid = #{source_lang} AND"
+      source_lang_name = (Solas::Language.find(source_lang).name if source_lang.present?)
+      target_lang_name = (Solas::Language.find(target_lang).name if target_lang.present?)
+
+      lang = if source_lang_name.present? && target_lang_name.present?
+               "langsource = '#{source_lang_name}' AND langtarget = '#{target_lang_name}' AND"
+             elsif source_lang_name.present?
+               "langsource = '#{source_lang_name}' AND"
              elsif target_lang.present?
-               "langtargetid = #{target_lang} AND"
+               "langtarget = '#{target_lang}' AND"
              end
 
       query do |connection|
-        task_count = connection.query("SELECT COUNT(*) FROM tasks_kp WHERE #{lang} #{conditions}").to_a.first['COUNT(*)']
+        task_count = connection.query("SELECT COUNT(*) FROM tasks_comb WHERE #{lang} #{conditions}").to_a.first['COUNT(*)']
         yield(task_count) if time_period[:from] < Time.current
       end
     end
@@ -43,23 +46,26 @@ module Forecasting
 
     def self.word_count_for_time_period(time_period, filter_type, source_lang = nil, target_lang = nil)
       conditions = if filter_type == :created_time
-                     "createdtime >= '#{time_period[:from]}' AND createdtime <= '#{time_period[:to]}'"
+                     "createdate >= '#{time_period[:from].to_s(:db)}' AND createdate <= '#{time_period[:to].to_s(:db)}'"
                    elsif filter_type == :created_until_end_time
-                     "createdtime <= '#{time_period[:to]}' AND enddate >= '#{time_period[:from]}'"
+                     "createdate <= '#{time_period[:to].to_s(:db)}' AND enddate >= '#{time_period[:from].to_s(:db)}'"
                    else
                      raise "Unsupported filter type: #{filter_type}"
                    end
 
-      lang = if source_lang.present? && target_lang.present?
-               "langsourceid = #{source_lang} AND langtargetid = #{target_lang} AND"
-             elsif source_lang.present?
-               "langsourceid = #{source_lang} AND"
+      source_lang_name = (Solas::Language.find(source_lang).name if source_lang.present?)
+      target_lang_name = (Solas::Language.find(target_lang).name if target_lang.present?)
+
+      lang = if source_lang_name.present? && target_lang_name.present?
+               "langsource = '#{source_lang_name}' AND langtarget = '#{target_lang_name}' AND"
+             elsif source_lang_name.present?
+               "langsource = '#{source_lang_name}' AND"
              elsif target_lang.present?
-               "langtargetid = #{target_lang} AND"
+               "langtarget = '#{target_lang}' AND"
              end
 
       query do |connection|
-        task_count = connection.query("SELECT SUM(wordcount) FROM tasks_kp WHERE #{lang} #{conditions}").to_a.first['SUM(wordcount)']
+        task_count = connection.query("SELECT SUM(wordcount) FROM tasks_comb WHERE #{lang} #{conditions}").to_a.first['SUM(wordcount)']
         yield(task_count) if time_period[:from] < Time.current
       end
     end

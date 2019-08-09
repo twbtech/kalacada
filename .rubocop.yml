@@ -73,6 +73,9 @@ Style/GuardClause:
 Style/NumericPredicate:
   EnforcedStyle: comparison
 
+Style/RegexpLiteral:
+  EnforcedStyle: percent_r
+
 Style/RescueModifier:
   Enabled: false
 
